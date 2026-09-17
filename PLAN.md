@@ -74,8 +74,8 @@ That's the only new thing to set up. Everything else is covered.
 - [x] **Phase 0 — this plan** (this file)
 - [x] **Phase 1 — Research**: 20 real creators overlapping her niches identified and profiled — see [`research/20-creators.md`](research/20-creators.md) and [`data/seed-creators.json`](data/seed-creators.json)
 - [x] **Phase 2 — Scaffold**: Next.js app, three-layer design tokens (warm terracotta/pine palette, not default shadcn theme), shadcn/ui components, light/dark mode. Neon connection deferred to Phase 3 (no data to persist yet).
-- [x] **Phase 4 — Dashboard UI** (built alongside Phase 2, running on static seed data): leaderboard with week/month/all-time tabs, creator detail pages, Cmd+K search, trending feed. Week/month tabs currently show the all-time snapshot with a notice — real historical ranking needs Phase 3's history.
-- [ ] **Phase 3 — Ingestion**: Neon connection, DB schema, cron job + serverless functions for scheduled + on-demand ScrapeCreators fetches, wire pages to real data instead of the static JSON
+- [x] **Phase 4 — Dashboard UI** (built alongside Phase 2, running on static seed data): leaderboard with niche filter + week/month (disabled, tooltipped)/all-time tabs, creator detail pages with real Top-performing/Recent post grids (thumbnails, likes/comments/plays, click-through), Cmd+K search, trending feed. See §8 for the review-round-1 fixes and decisions layered on top of the original build.
+- [ ] **Phase 3 — Ingestion**: Neon connection, DB schema, cron job + serverless functions for scheduled + on-demand ScrapeCreators fetches, wire pages to real data instead of the static JSON. Scope per §8: **top 5** posts (not 10) per creator to control scraping cost, same limit for on-demand-searched accounts; monthly cadence for the tracked-list refresh; on-demand `@username` search always fetches live regardless of cadence.
 - [ ] **Phase 5 — Polish pass**: design-better + motion + accessibility passes (mobile table currently horizontal-scrolls — candidate for a card layout on small screens)
 - [ ] **Phase 6 — Deploy**: connect Vercel to this repo, set env vars (prompting for the new ScrapeCreators key + password gate secret), ship
 
@@ -83,3 +83,19 @@ That's the only new thing to set up. Everything else is covered.
 
 - Custom domain, or default `*.vercel.app` URL — fine either way for a private tool.
 - Exact niche hashtags/keywords to seed the trending feed beyond what's obvious from her bio (`#SarkariNaukri`, `#GovtEmployee`, travel/fitness/book tags) — will refine during Phase 1 research.
+
+## 8. Review round 1 — fixes and decisions
+
+Fixed:
+- Search command palette crashed on open (`CommandDialog` wasn't wrapping children in cmdk's `<Command>` root — no store context to subscribe to). Fixed and verified: opens, filters, shows "not tracked yet" for unknown handles.
+- Niche filter added — radio dropdown from the leaderboard's Niche column header, state in the URL (`?niche=`).
+- Week/month tabs disabled with a tooltip explaining they need cron history, instead of silently rendering the same data as All time (was confusing, read as broken).
+- Creator detail pages now show real Top-performing / Recent post grids (5 each) with thumbnails, likes, comments, plays, date, and click-through to the live Instagram post — sourced from ScrapeCreators, thumbnails downloaded and compressed locally (~30KB each, no Vercel Image Optimization usage).
+- Direct-address copy pass: "your leaderboard," "your two accounts," etc., instead of third-person references to Deeksha, including in seed data's `why_relevant` fields. Trending page retitled "Trending in my niche" (first-person, her own framing — distinct from the second-person "your" used in body copy elsewhere).
+- Hover states added to table rows, stat tiles, post cards.
+
+**Decided, not yet built (Phase 3 scope):**
+- **Engagement floor for the main leaderboard**: once real per-post history accumulates (a month or so), filter to accounts sustaining ≥20% engagement — keeps the leaderboard feeling aspirational rather than discouraging. Niches don't need equal representation; an account topping engagement in just one niche still qualifies. A single standout post can also justify inclusion, not just an account-wide average.
+- **"Closest matches to you" exemption**: `@aso_naresh_gautam` and `@aso_prashantrana` (exact "Section Officer"/"ASO" title matches) are exempt from the ≥20% floor and get their own small section — their value is relevance, not vanity metrics. Keeps the main leaderboard unambiguously positive without losing the most personally useful reference points.
+- **Post-fetch cost control**: 5 posts per creator (not 10), same limit whether it's a tracked account or a live `@username` search result — same template either way, just capped lower to control ScrapeCreators credit spend.
+- Profile picture rehosting (same CDN-expiry fix as post thumbnails) — deferred to Phase 3 alongside the rest of the real ingestion pipeline.
