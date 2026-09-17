@@ -37,7 +37,7 @@ export function CreatorPostsSection({
 
 function PostGrid({ posts }: { posts: Post[] }) {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       {posts.map((post) => (
         <PostCard key={post.code} post={post} />
       ))}

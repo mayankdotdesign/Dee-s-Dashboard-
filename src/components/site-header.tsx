@@ -1,41 +1,53 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { SearchCommand } from "@/components/search-command";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { cn } from "@/lib/utils";
 import { getCreators } from "@/lib/creators";
+
+const NAV_LINKS = [
+  { href: "/", label: "Leaderboard" },
+  { href: "/trending", label: "Trending" },
+];
 
 export function SiteHeader() {
   const creators = getCreators();
+  const pathname = usePathname();
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
-      <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-        <div className="flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-baseline gap-2">
-            <span className="font-heading text-lg font-semibold tracking-tight">
-              Dee&apos;s Dashboard
-            </span>
-            <span className="hidden text-xs text-muted-foreground sm:inline">
-              growth reference
-            </span>
-          </Link>
-          <nav className="flex items-center gap-4 text-sm sm:hidden">
-            <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">
-              Leaderboard
-            </Link>
-            <Link href="/trending" className="text-muted-foreground hover:text-foreground transition-colors">
-              Trending
-            </Link>
-          </nav>
-        </div>
-        <div className="flex items-center gap-4">
-          <nav className="hidden items-center gap-4 text-sm sm:flex">
-            <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">
-              Leaderboard
-            </Link>
-            <Link href="/trending" className="text-muted-foreground hover:text-foreground transition-colors">
-              Trending
-            </Link>
-          </nav>
+      <div className="mx-auto grid max-w-6xl grid-cols-[auto_1fr_auto] items-center gap-4 px-4 py-3">
+        <Link
+          href="/"
+          aria-label="Dee's Dashboard home"
+          className="flex h-10 w-10 items-center justify-center text-[32px] leading-none"
+        >
+          🌻
+        </Link>
+
+        <nav className="flex items-center justify-center gap-6 text-sm">
+          {NAV_LINKS.map((link) => {
+            const active = pathname === link.href;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={cn(
+                  "transition-colors",
+                  active
+                    ? "font-medium text-foreground"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="flex items-center gap-3 justify-self-end">
           <SearchCommand creators={creators} />
           <ThemeToggle />
         </div>

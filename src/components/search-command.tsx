@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   CommandDialog,
@@ -20,17 +20,6 @@ export function SearchCommand({ creators }: { creators: Creator[] }) {
   const [query, setQuery] = useState("");
   const router = useRouter();
 
-  useEffect(() => {
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        setOpen((o) => !o);
-      }
-    }
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, []);
-
   const cleaned = query.replace(/^@/, "").trim().toLowerCase();
   const matches = creators.filter((c) =>
     c.handle.toLowerCase().includes(cleaned),
@@ -41,14 +30,13 @@ export function SearchCommand({ creators }: { creators: Creator[] }) {
     <>
       <Button
         variant="outline"
-        className="relative w-full justify-start text-sm text-muted-foreground sm:w-64"
+        size="icon"
+        className="text-muted-foreground sm:h-8 sm:w-64 sm:justify-start sm:px-3"
         onClick={() => setOpen(true)}
+        aria-label="Search @username"
       >
-        <Search className="mr-2 h-4 w-4" />
-        Search @username…
-        <kbd className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 hidden rounded border border-border bg-muted px-1.5 font-mono text-[10px] text-muted-foreground sm:inline-block">
-          ⌘K
-        </kbd>
+        <Search className="h-4 w-4 sm:mr-2" />
+        <span className="hidden text-sm sm:inline">Search @username…</span>
       </Button>
       <CommandDialog open={open} onOpenChange={setOpen}>
         <CommandInput
@@ -85,7 +73,7 @@ export function SearchCommand({ creators }: { creators: Creator[] }) {
                   className="h-6 w-6"
                 />
                 <span>@{c.handle}</span>
-                <span className="ml-auto text-xs text-muted-foreground">
+                <span className="ml-auto shrink-0 text-right text-xs text-muted-foreground">
                   {c.full_name}
                 </span>
               </CommandItem>

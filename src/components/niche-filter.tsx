@@ -63,7 +63,7 @@ export function NicheFilter() {
           </span>
         )}
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start">
+      <DropdownMenuContent align="start" style={{ minWidth: 200 }}>
         <DropdownMenuGroup>
           <DropdownMenuLabel>Filter by niche</DropdownMenuLabel>
           <DropdownMenuSeparator />
