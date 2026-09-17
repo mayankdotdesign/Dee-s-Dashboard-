@@ -6,6 +6,7 @@ import { CreatorAvatar } from "@/components/creator-avatar";
 import { CategoryBadge } from "@/components/category-badge";
 import { EngagementMeter } from "@/components/engagement-meter";
 import { CreatorPostsSection } from "@/components/creator-posts-section";
+import { CreatorInsights } from "@/components/creator-insights";
 import { getCreatorByHandle, getCreators, TIER_LABEL } from "@/lib/creators";
 import { topAllTimePosts, recentPosts } from "@/lib/posts";
 
@@ -105,6 +106,13 @@ export default async function CreatorPage({
         <p className="text-sm text-muted-foreground">
           {creator.why_relevant}
         </p>
+      </section>
+
+      <section className="mb-6">
+        <h2 className="mb-3 font-heading text-lg font-semibold">
+          Patterns worth knowing
+        </h2>
+        <CreatorInsights handle={creator.handle} />
       </section>
 
       <section>

@@ -112,3 +112,29 @@ Fixed:
 - Fixed two Base UI-specific bugs hit while building the above: a `DropdownMenuTrigger` wrapping a `Button` component produced invalid nested `<button>` HTML (fixed by styling the trigger directly with `buttonVariants()` instead of wrapping a component); and `DropdownMenuLabel` needs to sit inside a `<DropdownMenuGroup>` (or `RadioGroup`), not float directly in `DropdownMenuContent`, or Base UI throws "MenuGroupContext is missing."
 
 Not changed: the ≥20% engagement floor and Phase 3 ingestion scope from round 1 (§8) — she asked to let the current data run for a month before revisiting, rather than force it now with the current single-sample-per-era data.
+
+## 10. Review round 3 — card layout, real bugs, and per-creator insight widgets
+
+Fixed:
+- **Post card redesign**: rebuilt to a horizontal layout (portrait thumbnail left, content stacked right) per a provided wireframe, applied to both the creator detail page and Trending. Content order was then flipped again — caption/hashtags first, engagement stats last — to match the convention of other social apps instead of leading with stats.
+- **Search dropdown alignment bug** (real bug, not styling taste): `CommandItem` always renders an invisible trailing checkmark that also carries `ml-auto`, which was splitting the auto-margin space with the creator name's own `ml-auto` and stranding it mid-row instead of flush right. Fixed by giving the row its own `flex justify-between` wrapper so it stops competing with that hidden element.
+- **Scroll/blank-screen report**: stress-tested heavily on both `next dev` and a production `next build && next start` and could not reproduce a real rendering bug on either. Did find that above-the-fold images took a moment to appear on first load; fixed by eager-loading (`priority`) the first two cards in every post grid. Best explanation for what was seen: the dev server recompiles on every file save, and the report likely coincided with active editing — worth watching for recurrence now that we're not mid-edit, but not something the code itself was found to cause.
+- **"Niches covered" stat tile** was hardcoded as `"4"` — now computed from the actual distinct categories present, matching the other three (already-dynamic) tiles.
+- **Hover tooltips** added to every engagement stat pill (Likes/Comments/Views) explaining what it represents.
+- **Five new "Patterns worth knowing" widgets** on the creator detail page (`src/components/creator-insights.tsx`, logic in `src/lib/insights.ts`) — see the tracking table below. Required persisting the full 12-post history per creator (not just the 5-10 curated for thumbnails) into a new committed file, [`data/creator-posts-full.json`](data/creator-posts-full.json), so these stats don't depend on ephemeral scratch data. Caught and fixed one real bug while building this: posting cadence using the *mean* gap between posts was badly skewed by accounts with one long dormant stretch buried in their history (one account's average came out to "every 69 days" when its real recent cadence is closer to every 2) — switched to median, which is robust to that outlier.
+
+### Additional data-point tracking (per her request — sorted by status)
+
+| Data point | Status | Notes |
+|---|---|---|
+| Format performance (reel/carousel/photo) | ✅ Implemented | `formatPerformance()` — needs ≥2 formats used, else shows an empty state |
+| Best day/time to post | ✅ Implemented | `bestPostingTime()` — IST-normalized regardless of server/client timezone; needs ≥4 posts |
+| Hashtag reuse patterns | ✅ Implemented | `topHashtags()` — top 5 by frequency, avg engagement shown per tag |
+| Posting cadence | ✅ Implemented | `postingCadence()` — median gap between posts, not mean (see bug note above) |
+| Consistency vs. one-hit-viral | ✅ Implemented | `consistency()` — median vs. max engagement ratio → steady / occasional-breakout / breakout-driven |
+| Follower growth over time | ⏳ Placeholder built, data pending | Card exists with an honest empty state; needs Phase 3's recurring snapshots *and* real elapsed time — can't be unlocked by infra alone |
+| Top comments sample | 💡 Proposed, not started | Needs one small additional scrape per post (comments endpoint) |
+| Trending audio used on reels | 💡 Proposed, not started | Needs one small additional scrape per creator |
+| IG's "related accounts" signal | 💡 Proposed, not started | Needs one small additional scrape per creator; useful for auto-discovering more creators later |
+
+The first five needed no new scraping — all computed from data already fetched in review round 2. The next three are small, one-time, whenever-she-wants additions. Follower growth is the only one gated on both new infrastructure and the passage of time.
