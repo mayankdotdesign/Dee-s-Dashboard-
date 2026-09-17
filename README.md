@@ -4,7 +4,7 @@ Deeksha's personal creator-growth reference dashboard — see [`PLAN.md`](PLAN.m
 
 ## Status
 
-Live at [dee-s-dashboard.vercel.app](https://dee-s-dashboard.vercel.app) (Phase 6 deploy done). Running on static seed data from [`data/seed-creators.json`](data/seed-creators.json) — no live database or ScrapeCreators ingestion wired up yet, that's Phase 3.
+Live at [deedash.vercel.app](https://deedash.vercel.app) (Phase 6 deploy done). Running on static seed data from [`data/seed-creators.json`](data/seed-creators.json) — no live database or ScrapeCreators ingestion wired up yet, that's Phase 3.
 
 ## Stack
 

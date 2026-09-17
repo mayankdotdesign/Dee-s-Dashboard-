@@ -75,7 +75,7 @@ That's the only new thing to set up. Everything else is covered.
 - [x] **Phase 1 — Research**: 20 real creators overlapping her niches identified and profiled — see [`research/20-creators.md`](research/20-creators.md) and [`data/seed-creators.json`](data/seed-creators.json)
 - [x] **Phase 2 — Scaffold**: Next.js app, three-layer design tokens (warm terracotta/pine palette, not default shadcn theme), shadcn/ui components, light/dark mode. Neon connection deferred to Phase 3 (no data to persist yet).
 - [x] **Phase 4 — Dashboard UI** (built alongside Phase 2, running on static seed data): leaderboard with niche filter + week/month (disabled, tooltipped)/all-time tabs, creator detail pages with real Top-performing/Recent post grids (thumbnails, likes/comments/plays, click-through) and 5 "Patterns worth knowing" insight widgets, search, trending feed. See §8-§10 for the review-round fixes and decisions layered on top of the original build.
-- [x] **Phase 6 — Deploy**: live at [dee-s-dashboard.vercel.app](https://dee-s-dashboard.vercel.app) (URL change to `deedash.vercel.app` pending — needs her to rename the project or add the domain in the Vercel dashboard, no API/CLI access available for that specific action). See §11.
+- [x] **Phase 6 — Deploy**: live at [deedash.vercel.app](https://deedash.vercel.app), password-gated with a custom login screen. See §11.
 - [ ] **Phase 3 — Ingestion**: Neon connection, DB schema, cron job + serverless functions for scheduled + on-demand ScrapeCreators fetches, wire pages to real data instead of the static JSON. Scope per §8: **top 5** posts (not 10) per creator to control scraping cost, same limit for on-demand-searched accounts; monthly cadence for the tracked-list refresh; on-demand `@username` search always fetches live regardless of cadence.
 - [ ] **Phase 5 — Polish pass**: design-better + motion + accessibility passes (mobile table currently horizontal-scrolls — candidate for a card layout on small screens)
 
@@ -141,12 +141,12 @@ The first five needed no new scraping — all computed from data already fetched
 
 ## 11. Phase 6 — Deploy
 
-Live at **https://dee-s-dashboard.vercel.app** (imported via the Vercel dashboard's "Import Git Repository" flow, auto-deploys on every push to `main`).
+Live at **https://deedash.vercel.app** (imported via the Vercel dashboard's "Import Git Repository" flow, auto-deploys on every push to `main`).
 
 Fixed/built for this:
 - **Replaced HTTP Basic Auth with a branded `/login` page** — sunflower emoji, "Hey Deeksha" welcome, single password field, inline error state on a wrong password. `src/proxy.ts` now checks a signed session cookie (`src/lib/auth.ts` hashes the password with SHA-256 so the raw password is never stored client-side, and changing `DASHBOARD_PASSWORD` auto-invalidates old sessions) instead of issuing a 401 challenge. `src/app/api/login/route.ts` verifies and sets the cookie.
 - Caught and fixed a real bug on the live deployment during testing: the success path used `router.push()` + `router.refresh()`, which raced the client-side RSC transition against the cookie landing and got stuck re-fetching `/login` in a loop. Switched to a hard navigation (`window.location.assign`), which fixed it immediately — verified with the real password end-to-end afterward.
 - Hid the site header/nav on `/login` — it was rendering the full app chrome before she'd even authenticated.
-- A Vercel MCP connection became available mid-session (read-heavy: project/deployment info, runtime logs/errors, temporary auth-bypass share links — no domain-rename or project-rename write capability). Used it to confirm there's no programmatic way to rename the project or add a domain from here; that step needs her to do it in the Vercel dashboard directly (Settings → General to rename the project, or Settings → Domains to add one).
+- A Vercel MCP connection became available mid-session (read-heavy: project/deployment info, runtime logs/errors, temporary auth-bypass share links — no domain-rename or project-rename write capability). Used it to confirm there's no programmatic way to rename the project or add a domain from here; she did it herself in the Vercel dashboard.
 
-Pending: renaming the URL to `deedash.vercel.app` (her call on renaming the project vs. adding it as a second domain — see her chat thread for the two options laid out).
+Domain is live at `deedash.vercel.app`; the old `dee-s-dashboard.vercel.app` is gone.

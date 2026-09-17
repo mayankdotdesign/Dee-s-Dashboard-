@@ -52,7 +52,7 @@ export function NicheFilter() {
       <DropdownMenuTrigger
         className={cn(
           buttonVariants({ variant: "ghost", size: "sm" }),
-          "-ml-3 h-auto gap-1 px-3 py-1 text-xs font-medium text-foreground hover:bg-muted",
+          "-ml-1 h-auto gap-1 px-3 py-1 text-xs font-medium text-foreground hover:bg-muted",
         )}
       >
         Niche
