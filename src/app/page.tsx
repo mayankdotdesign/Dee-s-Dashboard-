@@ -54,6 +54,7 @@ export default async function Home({
     rated.length;
   const followerCounts = allCreators.map((c) => c.followers);
   const followerRange = `${formatFollowers(Math.min(...followerCounts))} – ${formatFollowers(Math.max(...followerCounts))}`;
+  const nichesCovered = new Set(allCreators.map((c) => c.category)).size;
 
   return (
     <div className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
@@ -78,7 +79,7 @@ export default async function Home({
           value={`${avgEngagement.toFixed(1)}%`}
         />
         <StatTile label="Follower range" value={followerRange} />
-        <StatTile label="Niches covered" value="4" />
+        <StatTile label="Niches covered" value={String(nichesCovered)} />
       </div>
 
       <LeaderboardTabs creators={creators} />

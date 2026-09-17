@@ -35,7 +35,7 @@ export default function TrendingPage() {
       </div>
 
       <div className="flex flex-col gap-6">
-        {withPosts.map(({ creator, post }) => (
+        {withPosts.map(({ creator, post }, i) => (
           <div key={creator.handle} className="flex flex-col gap-2">
             <Link
               href={`/creator/${creator.handle}`}
@@ -51,7 +51,7 @@ export default function TrendingPage() {
               </span>
               <CategoryBadge category={creator.category} />
             </Link>
-            <PostCard post={post} />
+            <PostCard post={post} priority={i < 2} />
           </div>
         ))}
       </div>

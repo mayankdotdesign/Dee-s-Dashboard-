@@ -67,15 +67,22 @@ export function SearchCommand({ creators }: { creators: Creator[] }) {
                 }}
                 className="gap-2"
               >
-                <CreatorAvatar
-                  handle={c.handle}
-                  fullName={c.full_name}
-                  className="h-6 w-6"
-                />
-                <span>@{c.handle}</span>
-                <span className="ml-auto shrink-0 text-right text-xs text-muted-foreground">
-                  {c.full_name}
-                </span>
+                {/* Single flex child so CommandItem's own trailing (invisible)
+                    checkmark — which also carries ml-auto — doesn't split the
+                    auto-margin space with ours and pull the name off the edge. */}
+                <div className="flex flex-1 items-center justify-between gap-2 overflow-hidden">
+                  <div className="flex items-center gap-2 overflow-hidden">
+                    <CreatorAvatar
+                      handle={c.handle}
+                      fullName={c.full_name}
+                      className="h-6 w-6 shrink-0"
+                    />
+                    <span className="truncate">@{c.handle}</span>
+                  </div>
+                  <span className="shrink-0 text-right text-xs text-muted-foreground">
+                    {c.full_name}
+                  </span>
+                </div>
               </CommandItem>
             ))}
           </CommandGroup>

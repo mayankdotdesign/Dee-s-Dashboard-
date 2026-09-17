@@ -38,8 +38,8 @@ export function CreatorPostsSection({
 function PostGrid({ posts }: { posts: Post[] }) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-      {posts.map((post) => (
-        <PostCard key={post.code} post={post} />
+      {posts.map((post, i) => (
+        <PostCard key={post.code} post={post} priority={i < 2} />
       ))}
     </div>
   );

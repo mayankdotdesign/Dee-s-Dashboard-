@@ -39,7 +39,14 @@ function StatPill({
   );
 }
 
-export function PostCard({ post }: { post: Post }) {
+export function PostCard({
+  post,
+  priority = false,
+}: {
+  post: Post;
+  /** Eager-load for above-the-fold cards so the first screenful never shows blank placeholders. */
+  priority?: boolean;
+}) {
   const { text, hashtags } = splitCaption(post.caption);
 
   return (
@@ -47,29 +54,30 @@ export function PostCard({ post }: { post: Post }) {
       href={post.permalink}
       target="_blank"
       rel="noopener noreferrer"
-      className="group flex flex-col overflow-hidden rounded-lg border border-border bg-card transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="group flex gap-4 rounded-lg border border-border bg-card p-3 transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:gap-5 sm:p-4"
     >
-      <div className="relative aspect-[4/5] w-full overflow-hidden bg-muted">
+      <div className="relative aspect-[3/4] w-28 shrink-0 overflow-hidden rounded-md bg-muted sm:w-36">
         <Image
           src={post.thumbnail}
           alt={post.caption || "Post thumbnail"}
           fill
-          sizes="(max-width: 640px) 100vw, 480px"
+          priority={priority}
+          sizes="(max-width: 640px) 112px, 144px"
           className="object-cover transition-transform duration-300 group-hover:scale-105"
         />
-        <div className="absolute right-2 top-2 rounded-full bg-black/55 p-1.5 text-white backdrop-blur-sm">
+        <div className="absolute right-1.5 top-1.5 rounded-full bg-black/55 p-1 text-white backdrop-blur-sm">
           {post.media_label === "reel" ? (
-            <Play className="h-3.5 w-3.5 fill-white" />
+            <Play className="h-3 w-3 fill-white" />
           ) : post.media_label === "carousel" ? (
-            <Layers className="h-3.5 w-3.5" />
+            <Layers className="h-3 w-3" />
           ) : null}
         </div>
         <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all group-hover:bg-black/20 group-hover:opacity-100">
-          <ExternalLink className="h-6 w-6 text-white drop-shadow" />
+          <ExternalLink className="h-5 w-5 text-white drop-shadow" />
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 p-4 sm:p-5">
+      <div className="flex min-w-0 flex-1 flex-col gap-2.5">
         <div className="flex flex-wrap items-center gap-2">
           <StatPill icon={Heart} value={post.like_count} />
           <StatPill icon={MessageCircle} value={post.comment_count} />
@@ -79,7 +87,9 @@ export function PostCard({ post }: { post: Post }) {
         </div>
 
         {text && (
-          <p className="text-sm leading-relaxed text-foreground/90">{text}</p>
+          <p className="line-clamp-4 text-sm leading-relaxed text-foreground/90">
+            {text}
+          </p>
         )}
 
         {hashtags.length > 0 && (
@@ -95,7 +105,7 @@ export function PostCard({ post }: { post: Post }) {
           </div>
         )}
 
-        <p className="text-xs text-muted-foreground/70">
+        <p className="mt-auto text-xs text-muted-foreground/70">
           {formatDate(post.created_at)}
         </p>
       </div>
