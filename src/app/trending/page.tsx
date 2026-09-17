@@ -13,11 +13,11 @@ export default function TrendingPage() {
     <div className="mx-auto w-full max-w-3xl flex-1 px-4 py-8">
       <div className="mb-8 flex flex-col gap-2">
         <h1 className="font-heading text-3xl font-semibold tracking-tight">
-          Trending in her niche
+          Trending in my niche
         </h1>
         <p className="max-w-2xl text-sm text-muted-foreground">
           Top-performing sampled posts from tracked creators, not general IG
-          Explore — every post below is from an account already in her
+          Explore — every post below is from an account already in your
           sarkari-job/office-life, travel, books, or fitness niches.
         </p>
         <div className="mt-1 w-fit rounded-md border border-dashed border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">

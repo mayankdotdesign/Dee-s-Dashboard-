@@ -10,6 +10,7 @@ import {
 import { CreatorAvatar } from "@/components/creator-avatar";
 import { CategoryBadge } from "@/components/category-badge";
 import { EngagementMeter } from "@/components/engagement-meter";
+import { NicheFilter } from "@/components/niche-filter";
 import type { Creator } from "@/lib/types";
 
 function formatFollowers(n: number) {
@@ -26,14 +27,23 @@ export function LeaderboardTable({ creators }: { creators: Creator[] }) {
           <TableRow className="hover:bg-transparent">
             <TableHead className="w-10 text-muted-foreground">#</TableHead>
             <TableHead>Creator</TableHead>
-            <TableHead>Niche</TableHead>
+            <TableHead className="p-0">
+              <NicheFilter />
+            </TableHead>
             <TableHead className="text-right">Followers</TableHead>
             <TableHead>Engagement</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
+          {creators.length === 0 && (
+            <TableRow className="hover:bg-transparent">
+              <TableCell colSpan={5} className="py-10 text-center text-sm text-muted-foreground">
+                No creators in this niche yet.
+              </TableCell>
+            </TableRow>
+          )}
           {creators.map((creator, i) => (
-            <TableRow key={creator.handle} className="group">
+            <TableRow key={creator.handle} className="group transition-colors hover:bg-muted/40">
               <TableCell className="tabular-nums text-muted-foreground">
                 {i + 1}
               </TableCell>

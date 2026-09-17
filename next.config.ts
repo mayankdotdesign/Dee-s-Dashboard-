@@ -7,6 +7,13 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.join(__dirname),
   },
+  images: {
+    // Post thumbnails are already downsized + compressed at ingestion time
+    // (480px, ~30KB). Skip Vercel's Image Optimization pipeline so it never
+    // eats into the free-tier optimization quota for images that don't
+    // benefit from further server-side resizing.
+    unoptimized: true,
+  },
 };
 
 export default nextConfig;

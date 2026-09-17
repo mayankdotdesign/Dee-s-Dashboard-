@@ -30,3 +30,23 @@ export interface CreatorSeedFile {
   note: string;
   creators: Omit<Creator, "category">[];
 }
+
+export type MediaLabel = "reel" | "carousel" | "photo";
+
+export interface Post {
+  code: string;
+  media_type: number;
+  media_label: MediaLabel;
+  like_count: number;
+  comment_count: number;
+  play_count: number | null;
+  created_at: string;
+  caption: string;
+  thumbnail: string;
+  permalink: string;
+}
+
+export interface CreatorPostsFile {
+  generated_at: string;
+  posts_by_handle: Record<string, Post[]>;
+}

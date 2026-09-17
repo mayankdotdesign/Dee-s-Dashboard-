@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Fraunces } from "next/font/google";
 import { SiteHeader } from "@/components/site-header";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -23,7 +24,7 @@ const fraunces = Fraunces({
 
 export const metadata: Metadata = {
   title: "Dee's Dashboard",
-  description: "Deeksha's personal creator-growth reference dashboard",
+  description: "Your personal creator-growth reference dashboard",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -35,9 +36,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <SiteHeader />
-          {children}
-          <Toaster />
+          <TooltipProvider delay={200}>
+            <SiteHeader />
+            {children}
+            <Toaster />
+          </TooltipProvider>
         </ThemeProvider>
       </body>
     </html>

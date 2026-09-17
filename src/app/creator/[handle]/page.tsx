@@ -5,7 +5,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { CreatorAvatar } from "@/components/creator-avatar";
 import { CategoryBadge } from "@/components/category-badge";
 import { EngagementMeter } from "@/components/engagement-meter";
+import { CreatorPostsSection } from "@/components/creator-posts-section";
 import { getCreatorByHandle, getCreators, TIER_LABEL } from "@/lib/creators";
+import { topAllTimePosts, recentPosts } from "@/lib/posts";
 
 export function generateStaticParams() {
   return getCreators().map((c) => ({ handle: c.handle }));
@@ -24,8 +26,11 @@ export default async function CreatorPage({
   const creator = getCreatorByHandle(handle);
   if (!creator) notFound();
 
+  const topPosts = topAllTimePosts(creator.handle);
+  const latestPosts = recentPosts(creator.handle);
+
   return (
-    <div className="mx-auto w-full max-w-3xl flex-1 px-4 py-8">
+    <div className="mx-auto w-full max-w-5xl flex-1 px-4 py-8">
       <Link
         href="/"
         className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -102,23 +107,10 @@ export default async function CreatorPage({
         </p>
       </section>
 
-      {creator.top_post_caption && (
-        <section>
-          <h2 className="mb-2 font-heading text-lg font-semibold">
-            Top sampled post
-          </h2>
-          <Card>
-            <CardContent className="px-4">
-              <p className="text-sm italic">
-                &ldquo;{creator.top_post_caption}&rdquo;
-              </p>
-              <p className="mt-2 text-xs text-muted-foreground tabular-nums">
-                {creator.top_post_likes.toLocaleString("en-IN")} likes
-              </p>
-            </CardContent>
-          </Card>
-        </section>
-      )}
+      <section>
+        <h2 className="mb-3 font-heading text-lg font-semibold">Posts</h2>
+        <CreatorPostsSection topAllTime={topPosts} recent={latestPosts} />
+      </section>
     </div>
   );
 }
