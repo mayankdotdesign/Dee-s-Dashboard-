@@ -4,14 +4,14 @@ Deeksha's personal creator-growth reference dashboard — see [`PLAN.md`](PLAN.m
 
 ## Status
 
-Phase 2 (scaffold) in progress: Next.js + Tailwind v4 + shadcn/ui, running on static seed data from [`data/seed-creators.json`](data/seed-creators.json). No live database or ScrapeCreators ingestion wired up yet — that's Phase 3.
+Live at [dee-s-dashboard.vercel.app](https://dee-s-dashboard.vercel.app) (Phase 6 deploy done). Running on static seed data from [`data/seed-creators.json`](data/seed-creators.json) — no live database or ScrapeCreators ingestion wired up yet, that's Phase 3.
 
 ## Stack
 
 - Next.js 16 (App Router, Turbopack)
 - Tailwind CSS v4 + shadcn/ui — custom warm/editorial token system in `src/app/globals.css` (not the default shadcn theme)
 - `next-themes` for light/dark mode
-- HTTP Basic Auth gate via `src/proxy.ts` (`DASHBOARD_PASSWORD` env var)
+- Password gate via a branded `/login` page (not the browser's native Basic Auth prompt) — `src/proxy.ts` checks a signed session cookie set by `src/app/api/login/route.ts` against `DASHBOARD_PASSWORD`
 
 ## Local development
 

@@ -1,31 +1,30 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { SESSION_COOKIE, hashPassword } from "@/lib/auth";
 
-// Simple HTTP Basic Auth gate — keeps this off search engines and casual
-// link-sharing without needing a real auth provider for a single-user tool.
-// Set DASHBOARD_PASSWORD in Vercel env vars. Username can be anything.
-export function proxy(request: NextRequest) {
+// Gates the whole app behind a single shared password, via a branded
+// /login page instead of the browser's native Basic Auth prompt.
+// Set DASHBOARD_PASSWORD in Vercel env vars.
+export async function proxy(request: NextRequest) {
   const password = process.env.DASHBOARD_PASSWORD;
 
   // No password configured (e.g. local dev without .env.local) — don't lock
   // the owner out of their own machine.
   if (!password) return NextResponse.next();
 
-  const auth = request.headers.get("authorization");
-  if (auth) {
-    const [scheme, encoded] = auth.split(" ");
-    if (scheme === "Basic" && encoded) {
-      const decoded = atob(encoded);
-      const [, suppliedPassword] = decoded.split(":");
-      if (suppliedPassword === password) {
-        return NextResponse.next();
-      }
-    }
+  const { pathname } = request.nextUrl;
+  if (pathname === "/login" || pathname === "/api/login") {
+    return NextResponse.next();
   }
 
-  return new NextResponse("Authentication required", {
-    status: 401,
-    headers: { "WWW-Authenticate": 'Basic realm="Dee\'s Dashboard"' },
-  });
+  const cookie = request.cookies.get(SESSION_COOKIE)?.value;
+  const expected = await hashPassword(password);
+  if (cookie === expected) {
+    return NextResponse.next();
+  }
+
+  const loginUrl = new URL("/login", request.url);
+  loginUrl.searchParams.set("from", pathname);
+  return NextResponse.redirect(loginUrl);
 }
 
 export const config = {
