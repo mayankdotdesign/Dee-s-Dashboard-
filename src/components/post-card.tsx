@@ -1,5 +1,12 @@
+"use client";
+
 import Image from "next/image";
 import { Heart, MessageCircle, Play, Layers, ExternalLink } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type { Post } from "@/lib/types";
 
 function formatCount(n: number) {
@@ -27,15 +34,24 @@ function splitCaption(caption: string) {
 function StatPill({
   icon: Icon,
   value,
+  label,
 }: {
   icon: typeof Heart;
   value: number;
+  label: string;
 }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-sm font-semibold tabular-nums text-foreground">
-      <Icon className="h-4 w-4 text-primary" />
-      {formatCount(value)}
-    </span>
+    <Tooltip>
+      <TooltipTrigger
+        render={
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-sm font-semibold tabular-nums text-foreground" />
+        }
+      >
+        <Icon className="h-4 w-4 text-primary" />
+        {formatCount(value)}
+      </TooltipTrigger>
+      <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -78,14 +94,6 @@ export function PostCard({
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col gap-2.5">
-        <div className="flex flex-wrap items-center gap-2">
-          <StatPill icon={Heart} value={post.like_count} />
-          <StatPill icon={MessageCircle} value={post.comment_count} />
-          {post.play_count != null && (
-            <StatPill icon={Play} value={post.play_count} />
-          )}
-        </div>
-
         {text && (
           <p className="line-clamp-4 text-sm leading-relaxed text-foreground/90">
             {text}
@@ -105,7 +113,19 @@ export function PostCard({
           </div>
         )}
 
-        <p className="mt-auto text-xs text-muted-foreground/70">
+        <div className="mt-auto flex flex-wrap items-center gap-2 pt-1">
+          <StatPill icon={Heart} value={post.like_count} label="Likes" />
+          <StatPill
+            icon={MessageCircle}
+            value={post.comment_count}
+            label="Comments"
+          />
+          {post.play_count != null && (
+            <StatPill icon={Play} value={post.play_count} label="Views" />
+          )}
+        </div>
+
+        <p className="text-xs text-muted-foreground/70">
           {formatDate(post.created_at)}
         </p>
       </div>
