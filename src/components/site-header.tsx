@@ -16,6 +16,9 @@ export function SiteHeader() {
   const creators = getCreators();
   const pathname = usePathname();
 
+  // The login screen shouldn't show app navigation before she's in.
+  if (pathname === "/login") return null;
+
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
       <div className="mx-auto grid max-w-6xl grid-cols-[auto_1fr_auto] items-center gap-4 px-4 py-3">

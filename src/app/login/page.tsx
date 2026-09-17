@@ -1,12 +1,11 @@
 "use client";
 
 import { Suspense, useState, type FormEvent } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -24,8 +23,10 @@ function LoginForm() {
     });
 
     if (res.ok) {
-      router.push(searchParams.get("from") || "/");
-      router.refresh();
+      // Hard navigation, not router.push — guarantees the just-set cookie
+      // is attached and the destination renders fresh server data, rather
+      // than racing an RSC transition against the cookie landing.
+      window.location.assign(searchParams.get("from") || "/");
     } else {
       const data = await res.json().catch(() => null);
       setError(data?.error ?? "Something went wrong — try again.");
