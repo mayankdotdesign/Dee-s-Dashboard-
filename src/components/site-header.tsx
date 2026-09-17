@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SearchCommand } from "@/components/search-command";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { getCreators } from "@/lib/creators";
 
 export function SiteHeader() {
@@ -36,6 +37,7 @@ export function SiteHeader() {
             </Link>
           </nav>
           <SearchCommand creators={creators} />
+          <ThemeToggle />
         </div>
       </div>
     </header>

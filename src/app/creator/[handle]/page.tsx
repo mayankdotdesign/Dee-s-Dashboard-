@@ -72,7 +72,9 @@ export default async function CreatorPage({
         <Card className="gap-1 py-4">
           <CardContent className="px-4">
             <p className="text-xs text-muted-foreground">Tier</p>
-            <p className="text-xl font-semibold">{TIER_LABEL[creator.tier]}</p>
+            <p className="text-xl font-semibold">
+              {TIER_LABEL[creator.tier] ?? creator.tier}
+            </p>
           </CardContent>
         </Card>
         <Card className="gap-1 py-4">

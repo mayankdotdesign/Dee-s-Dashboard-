@@ -73,10 +73,10 @@ That's the only new thing to set up. Everything else is covered.
 
 - [x] **Phase 0 — this plan** (this file)
 - [x] **Phase 1 — Research**: 20 real creators overlapping her niches identified and profiled — see [`research/20-creators.md`](research/20-creators.md) and [`data/seed-creators.json`](data/seed-creators.json)
-- [ ] **Phase 2 — Scaffold**: Next.js app in this repo, design tokens, shadcn setup, Neon connection
-- [ ] **Phase 3 — Ingestion**: cron job + serverless functions for scheduled + on-demand ScrapeCreators fetches
-- [ ] **Phase 4 — Dashboard UI**: leaderboard (week/month toggle), creator detail view, search, trending feed
-- [ ] **Phase 5 — Polish pass**: design-better + motion + accessibility passes
+- [x] **Phase 2 — Scaffold**: Next.js app, three-layer design tokens (warm terracotta/pine palette, not default shadcn theme), shadcn/ui components, light/dark mode. Neon connection deferred to Phase 3 (no data to persist yet).
+- [x] **Phase 4 — Dashboard UI** (built alongside Phase 2, running on static seed data): leaderboard with week/month/all-time tabs, creator detail pages, Cmd+K search, trending feed. Week/month tabs currently show the all-time snapshot with a notice — real historical ranking needs Phase 3's history.
+- [ ] **Phase 3 — Ingestion**: Neon connection, DB schema, cron job + serverless functions for scheduled + on-demand ScrapeCreators fetches, wire pages to real data instead of the static JSON
+- [ ] **Phase 5 — Polish pass**: design-better + motion + accessibility passes (mobile table currently horizontal-scrolls — candidate for a card layout on small screens)
 - [ ] **Phase 6 — Deploy**: connect Vercel to this repo, set env vars (prompting for the new ScrapeCreators key + password gate secret), ship
 
 ## 7. Open questions (non-blocking, revisit later)
