@@ -71,8 +71,8 @@ That's the only new thing to set up. Everything else is covered.
 
 ## 6. Build phases
 
-- [ ] **Phase 0 — this plan** (this file)
-- [ ] **Phase 1 — Research**: identify ~20-30 real creators overlapping her niches (govt-job/office-life humor, travel, fitness, books, creative lifestyle), pull their profile + top content data
+- [x] **Phase 0 — this plan** (this file)
+- [x] **Phase 1 — Research**: 20 real creators overlapping her niches identified and profiled — see [`research/20-creators.md`](research/20-creators.md) and [`data/seed-creators.json`](data/seed-creators.json)
 - [ ] **Phase 2 — Scaffold**: Next.js app in this repo, design tokens, shadcn setup, Neon connection
 - [ ] **Phase 3 — Ingestion**: cron job + serverless functions for scheduled + on-demand ScrapeCreators fetches
 - [ ] **Phase 4 — Dashboard UI**: leaderboard (week/month toggle), creator detail view, search, trending feed
