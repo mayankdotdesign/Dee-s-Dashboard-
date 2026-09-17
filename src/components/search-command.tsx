@@ -62,8 +62,8 @@ export function SearchCommand({ creators }: { creators: Creator[] }) {
               <span className="font-medium text-foreground">
                 @{cleaned}
               </span>{" "}
-              isn&apos;t tracked yet. Live lookup for any handle turns on once
-              the production ScrapeCreators account is wired in (Phase 3).
+              isn&apos;t in your tracked list yet. Looking up any account
+              on demand is coming soon.
             </CommandEmpty>
           ) : (
             <CommandEmpty>No tracked creators match.</CommandEmpty>

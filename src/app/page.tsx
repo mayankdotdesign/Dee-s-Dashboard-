@@ -16,13 +16,21 @@ function StatTile({ label, value }: { label: string; value: string }) {
   );
 }
 
-const VALID_CATEGORIES: Category[] = [
-  "sarkari",
-  "travel",
-  "books",
-  "fitness",
-  "other",
-];
+const ALL_CATEGORIES: Category[] = ["sarkari", "travel", "books", "fitness"];
+
+function formatFollowers(n: number) {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+  return String(n);
+}
+
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
 
 export default async function Home({
   searchParams,
@@ -31,28 +39,32 @@ export default async function Home({
 }) {
   const { niche } = await searchParams;
   const allCreators = sortByEngagement(getCreators());
-  const activeNiche = VALID_CATEGORIES.includes(niche as Category)
-    ? (niche as Category)
-    : null;
-  const creators = activeNiche
-    ? allCreators.filter((c) => c.category === activeNiche)
-    : allCreators;
+
+  const activeNiches = (niche?.split(",") ?? []).filter((v): v is Category =>
+    ALL_CATEGORIES.includes(v as Category),
+  );
+  const creators =
+    activeNiches.length > 0
+      ? allCreators.filter((c) => activeNiches.includes(c.category))
+      : allCreators;
 
   const rated = allCreators.filter((c) => c.engagement_rate_pct != null);
   const avgEngagement =
     rated.reduce((sum, c) => sum + (c.engagement_rate_pct ?? 0), 0) /
     rated.length;
+  const followerCounts = allCreators.map((c) => c.followers);
+  const followerRange = `${formatFollowers(Math.min(...followerCounts))} – ${formatFollowers(Math.max(...followerCounts))}`;
 
   return (
     <div className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
       <div className="mb-8 flex flex-col gap-2">
         <h1 className="font-heading text-3xl font-semibold tracking-tight">
-          Your creator leaderboard
+          Hey Deeksha 👋
         </h1>
         <p className="max-w-2xl text-sm text-muted-foreground">
-          20 creators across sarkari-job/office-life, travel, books, and
-          fitness — the niches that overlap your two accounts. Ranked by
-          engagement rate, not just follower count.
+          Here&apos;s who&apos;s doing well in your world right now —
+          sarkari-job/office-life, travel, books, and fitness. Ranked by how
+          engaged their audience actually is, not just follower count.
         </p>
       </div>
 
@@ -65,14 +77,14 @@ export default async function Home({
           label="Avg. engagement rate"
           value={`${avgEngagement.toFixed(1)}%`}
         />
-        <StatTile label="Follower range" value="2.8K – 4.3M" />
+        <StatTile label="Follower range" value={followerRange} />
         <StatTile label="Niches covered" value="4" />
       </div>
 
       <LeaderboardTabs creators={creators} />
 
       <p className="mt-6 text-xs text-muted-foreground">
-        Snapshot from {SEED_META.generated_at} · {SEED_META.source}
+        Last updated {formatDate(SEED_META.generated_at)}
       </p>
     </div>
   );

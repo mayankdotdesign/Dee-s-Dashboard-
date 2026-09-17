@@ -21,9 +21,8 @@ export default function TrendingPage() {
           sarkari-job/office-life, travel, books, or fitness niches.
         </p>
         <div className="mt-1 w-fit rounded-md border border-dashed border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-          This is a static sample from Phase 1 research. Once the ingestion
-          cron (Phase 3) is running, this feed refreshes automatically from
-          live hashtag/keyword search.
+          This list updates whenever we refresh the tracked creators —
+          automatic updates are coming soon.
         </div>
       </div>
 

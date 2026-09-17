@@ -3,11 +3,13 @@ import type { Category, Creator, CreatorSeedFile } from "./types";
 
 function deriveCategory(niche: string): Category {
   const n = niche.toLowerCase();
+  // Order matters for multi-niche strings like "fitness + travel" — sarkari
+  // and fitness are checked before the more generic "travel" keyword.
   if (n.includes("sarkari")) return "sarkari";
-  if (n.includes("travel")) return "travel";
   if (n.includes("book")) return "books";
   if (n.includes("fitness")) return "fitness";
-  return "other";
+  if (n.includes("travel")) return "travel";
+  throw new Error(`Unrecognized niche, can't derive a category: "${niche}"`);
 }
 
 const seed = seedFile as CreatorSeedFile;
@@ -48,7 +50,6 @@ export const CATEGORY_LABEL: Record<Category, string> = {
   travel: "Travel",
   books: "Books",
   fitness: "Fitness",
-  other: "Other",
 };
 
 export const TIER_LABEL: Record<Creator["tier"], string> = {

@@ -96,6 +96,19 @@ Fixed:
 
 **Decided, not yet built (Phase 3 scope):**
 - **Engagement floor for the main leaderboard**: once real per-post history accumulates (a month or so), filter to accounts sustaining ≥20% engagement — keeps the leaderboard feeling aspirational rather than discouraging. Niches don't need equal representation; an account topping engagement in just one niche still qualifies. A single standout post can also justify inclusion, not just an account-wide average.
-- **"Closest matches to you" exemption**: `@aso_naresh_gautam` and `@aso_prashantrana` (exact "Section Officer"/"ASO" title matches) are exempt from the ≥20% floor and get their own small section — their value is relevance, not vanity metrics. Keeps the main leaderboard unambiguously positive without losing the most personally useful reference points.
+- **"Closest matches to you" exemption**: any exact job-title/niche match stays even if under the ≥20% floor — relevance over vanity metrics. (The two accounts originally named here, `@aso_naresh_gautam` and `@aso_prashantrana`, were removed in review round 2 — see §9 — so this is a standing rule for future candidates, not tied to specific handles right now. The current closest matches, `@sarkari_karamchari2207` and `@shreya.xplores`, both clear the floor comfortably anyway.)
 - **Post-fetch cost control**: 5 posts per creator (not 10), same limit whether it's a tracked account or a live `@username` search result — same template either way, just capped lower to control ScrapeCreators credit spend.
 - Profile picture rehosting (same CDN-expiry fix as post thumbnails) — deferred to Phase 3 alongside the rest of the real ingestion pipeline.
+
+## 9. Review round 2 — women-only re-curation and more fixes
+
+Fixed:
+- **Women-only re-curation**: 13 of the 20 creators were men or a multi-author brand account (`@theglobalhues`) and got removed, including one (`@itsaartisahu`) whose content leans heavily religious and didn't fit the niche regardless of gender. Replaced with 13 newly researched independent women creators across the same 4 niches — see [`research/20-creators.md`](research/20-creators.md) for the full list and reasoning. Re-fetched real post history (12 posts each) for all 20 and switched `engagement_rate_pct` from a 1-2 post sample to a proper average across each account's 12 most recent posts.
+- **Dropped the "Other" niche category** — every account in it was one of the removed men/brand accounts, so it emptied out naturally. `Category` type, badge colors, and the filter no longer reference it.
+- **Niche filter is now multi-select**: checkboxes instead of radio buttons, with a count badge next to the chevron (e.g. "Niche ②"). State still lives in the URL as a comma-separated list.
+- **"Recent" tab now means recent-and-good, not just latest**: it shows the best-performing posts among each creator's most-recently-published batch (last 8 of the 12 fetched), ranked by engagement — not pure reverse-chronological. It's also the default/first tab on creator pages now, with "Top performing" (best-ever, any age) second.
+- **Plain-language copy pass**: removed "cron," "Phase 1/3," "ScrapeCreators," and similar internal jargon from every user-facing string (tooltips, empty states, footer). The footer now reads a plain date instead of the raw data-source string.
+- **Greeting replaces the leaderboard heading**: "Hey Deeksha 👋" instead of "Your creator leaderboard" — fixed, not time-of-day dynamic, per her call.
+- Fixed two Base UI-specific bugs hit while building the above: a `DropdownMenuTrigger` wrapping a `Button` component produced invalid nested `<button>` HTML (fixed by styling the trigger directly with `buttonVariants()` instead of wrapping a component); and `DropdownMenuLabel` needs to sit inside a `<DropdownMenuGroup>` (or `RadioGroup`), not float directly in `DropdownMenuContent`, or Base UI throws "MenuGroupContext is missing."
+
+Not changed: the ≥20% engagement floor and Phase 3 ingestion scope from round 1 (§8) — she asked to let the current data run for a month before revisiting, rather than force it now with the current single-sample-per-era data.

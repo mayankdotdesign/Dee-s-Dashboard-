@@ -18,8 +18,9 @@ function DisabledTabTrigger({ label }: { label: string }) {
         </TabsTrigger>
       </TooltipTrigger>
       <TooltipContent>
-        Needs a few {label === "This week" ? "weeks" : "months"} of history
-        from the ingestion cron before this can differ from All time.
+        Coming soon — we need a few{" "}
+        {label === "This week" ? "weeks" : "months"} of tracking data before
+        this can show real changes over time.
       </TooltipContent>
     </Tooltip>
   );

@@ -1,4 +1,4 @@
-export type Category = "sarkari" | "travel" | "books" | "fitness" | "other";
+export type Category = "sarkari" | "travel" | "books" | "fitness";
 
 export type Tier =
   | "peer"
@@ -46,7 +46,14 @@ export interface Post {
   permalink: string;
 }
 
+export interface HandlePosts {
+  /** Best posts ever, regardless of age. */
+  top_all_time: Post[];
+  /** Best posts among the most recently published batch — recent AND good, not just latest. */
+  top_recent: Post[];
+}
+
 export interface CreatorPostsFile {
   generated_at: string;
-  posts_by_handle: Record<string, Post[]>;
+  posts_by_handle: Record<string, HandlePosts>;
 }

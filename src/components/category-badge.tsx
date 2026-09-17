@@ -7,7 +7,6 @@ const CATEGORY_CLASSES: Record<Category, string> = {
   travel: "bg-tag-travel text-tag-travel-foreground",
   books: "bg-tag-books text-tag-books-foreground",
   fitness: "bg-tag-fitness text-tag-fitness-foreground",
-  other: "bg-muted text-muted-foreground",
 };
 
 export function CategoryBadge({

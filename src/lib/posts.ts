@@ -3,20 +3,12 @@ import type { CreatorPostsFile, Post } from "./types";
 
 const data = postsFile as CreatorPostsFile;
 
-export function getPostsForHandle(handle: string): Post[] {
-  return data.posts_by_handle[handle] ?? [];
+/** Best posts among the most recently published batch (recent AND good). */
+export function recentPosts(handle: string): Post[] {
+  return data.posts_by_handle[handle]?.top_recent ?? [];
 }
 
-/** Top 5 by engagement (likes + comments), highest first. */
-export function topAllTimePosts(handle: string, limit = 5): Post[] {
-  return [...getPostsForHandle(handle)]
-    .sort((a, b) => b.like_count + b.comment_count - (a.like_count + a.comment_count))
-    .slice(0, limit);
-}
-
-/** Most recent 5 by post date, newest first. */
-export function recentPosts(handle: string, limit = 5): Post[] {
-  return [...getPostsForHandle(handle)]
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-    .slice(0, limit);
+/** Best posts ever, regardless of age. */
+export function topAllTimePosts(handle: string): Post[] {
+  return data.posts_by_handle[handle]?.top_all_time ?? [];
 }

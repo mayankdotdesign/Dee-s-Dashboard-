@@ -14,22 +14,22 @@ export function CreatorPostsSection({
   if (topAllTime.length === 0 && recent.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
-        No post data cached for this account yet.
+        No posts saved for this account yet.
       </p>
     );
   }
 
   return (
-    <Tabs defaultValue="top" className="gap-4">
+    <Tabs defaultValue="recent" className="gap-4">
       <TabsList>
-        <TabsTrigger value="top">Top performing</TabsTrigger>
         <TabsTrigger value="recent">Recent</TabsTrigger>
+        <TabsTrigger value="top">Top performing</TabsTrigger>
       </TabsList>
-      <TabsContent value="top">
-        <PostGrid posts={topAllTime} />
-      </TabsContent>
       <TabsContent value="recent">
         <PostGrid posts={recent} />
+      </TabsContent>
+      <TabsContent value="top">
+        <PostGrid posts={topAllTime} />
       </TabsContent>
     </Tabs>
   );
