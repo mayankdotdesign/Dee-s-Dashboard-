@@ -29,7 +29,10 @@ function AvatarImage({ className, ...props }: AvatarPrimitive.Image.Props) {
     <AvatarPrimitive.Image
       data-slot="avatar-image"
       className={cn(
-        "aspect-square size-full rounded-full object-cover",
+        // Only mounts once the image has actually loaded (Base UI shows
+        // Fallback until then), so this fade always plays on the real
+        // swap-in rather than masking a slow network fetch.
+        "aspect-square size-full animate-in rounded-full object-cover fade-in duration-300 motion-reduce:animate-none",
         className
       )}
       {...props}

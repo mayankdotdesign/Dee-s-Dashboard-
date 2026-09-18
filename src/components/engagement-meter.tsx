@@ -36,7 +36,7 @@ export function EngagementMeter({
     <div className={cn("flex items-center gap-2", className)}>
       <div className="h-1.5 w-16 rounded-full bg-primary/15">
         <div
-          className="h-1.5 rounded-full bg-primary"
+          className="h-1.5 rounded-full bg-primary transition-[width] duration-500 ease-out motion-reduce:transition-none"
           style={{ width: `${pct}%` }}
         />
       </div>

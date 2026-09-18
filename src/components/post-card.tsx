@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { Heart, MessageCircle, Play, Layers, ExternalLink } from "lucide-react";
 import {
@@ -7,7 +8,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { formatCount } from "@/lib/utils";
+import { cn, formatCount } from "@/lib/utils";
 import type { Post } from "@/lib/types";
 
 function formatDate(iso: string) {
@@ -61,6 +62,7 @@ export function PostCard({
   priority?: boolean;
 }) {
   const { text, hashtags } = splitCaption(post.caption);
+  const [loaded, setLoaded] = useState(false);
 
   return (
     <a
@@ -76,7 +78,11 @@ export function PostCard({
           fill
           priority={priority}
           sizes="(max-width: 640px) 112px, 144px"
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
+          onLoad={() => setLoaded(true)}
+          className={cn(
+            "object-cover transition-[opacity,transform] duration-300 group-hover:scale-105 motion-reduce:transition-opacity",
+            loaded ? "opacity-100" : "opacity-0",
+          )}
         />
         <div className="absolute right-1.5 top-1.5 rounded-full bg-black/55 p-1 text-white backdrop-blur-sm">
           {post.media_label === "reel" ? (

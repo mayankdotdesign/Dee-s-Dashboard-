@@ -1,18 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  // Mount-gate, not a data sync: resolvedTheme is unknown on the server, so
-  // this defers the icon choice to the client to avoid a hydration mismatch.
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => setMounted(true), []);
 
   return (
     <Button
@@ -20,13 +13,14 @@ export function ThemeToggle() {
       size="icon"
       aria-label="Toggle dark mode"
       onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-      className="shrink-0"
+      className="relative shrink-0"
     >
-      {mounted && resolvedTheme === "dark" ? (
-        <Sun className="h-4 w-4" />
-      ) : (
-        <Moon className="h-4 w-4" />
-      )}
+      {/* CSS-driven (dark: variant), not a mounted-gated conditional render —
+          next-themes sets the `dark` class before paint (see
+          suppressHydrationWarning on <html>), so this crossfades cleanly
+          with no hydration flash. */}
+      <Sun className="h-4 w-4 rotate-0 scale-100 transition-all duration-300 motion-reduce:transition-none dark:-rotate-90 dark:scale-0" />
+      <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all duration-300 motion-reduce:transition-none dark:rotate-0 dark:scale-100" />
     </Button>
   );
 }
