@@ -21,6 +21,7 @@ interface LookupResult {
   full_name: string;
   followers: number | null;
   is_private: boolean;
+  profile_pic_url: string | null;
 }
 
 export function SearchCommand({ creators }: { creators: Creator[] }) {
@@ -129,6 +130,7 @@ export function SearchCommand({ creators }: { creators: Creator[] }) {
                       <CreatorAvatar
                         handle={lookup.handle}
                         fullName={lookup.full_name}
+                        profilePicUrl={lookup.profile_pic_url}
                         className="h-6 w-6 shrink-0"
                       />
                       <span className="truncate">@{lookup.handle}</span>
@@ -174,6 +176,7 @@ export function SearchCommand({ creators }: { creators: Creator[] }) {
                     <CreatorAvatar
                       handle={c.handle}
                       fullName={c.full_name}
+                      profilePicUrl={c.profile_pic_url}
                       className="h-6 w-6 shrink-0"
                     />
                     <span className="truncate">@{c.handle}</span>

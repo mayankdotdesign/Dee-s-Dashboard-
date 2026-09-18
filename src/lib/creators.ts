@@ -1,4 +1,5 @@
 import { sql } from "./db";
+import { proxiedImage } from "./utils";
 import type { Category, Creator, Tier } from "./types";
 
 interface CreatorRow {
@@ -8,6 +9,7 @@ interface CreatorRow {
   tier: string;
   bio: string;
   why_relevant: string;
+  profile_pic_url: string | null;
   followers: number;
   posts_count: number | null;
   engagement_rate_pct: string | number | null;
@@ -21,6 +23,7 @@ function mapRow(r: CreatorRow): Creator {
     tier: r.tier as Tier,
     bio: r.bio,
     why_relevant: r.why_relevant,
+    profile_pic_url: r.profile_pic_url ? proxiedImage(r.profile_pic_url) : null,
     followers: r.followers,
     posts: r.posts_count ?? 0,
     engagement_rate_pct:
@@ -33,7 +36,7 @@ function mapRow(r: CreatorRow): Creator {
 export async function getCreators(): Promise<Creator[]> {
   const rows = (await sql`
     SELECT c.handle, c.full_name, c.category, c.tier, c.bio, c.why_relevant,
-           s.followers, s.posts_count, s.engagement_rate_pct
+           c.profile_pic_url, s.followers, s.posts_count, s.engagement_rate_pct
     FROM creators c
     JOIN LATERAL (
       SELECT followers, posts_count, engagement_rate_pct
@@ -51,7 +54,7 @@ export async function getCreatorByHandle(
 ): Promise<Creator | undefined> {
   const rows = (await sql`
     SELECT c.handle, c.full_name, c.category, c.tier, c.bio, c.why_relevant,
-           s.followers, s.posts_count, s.engagement_rate_pct
+           c.profile_pic_url, s.followers, s.posts_count, s.engagement_rate_pct
     FROM creators c
     JOIN LATERAL (
       SELECT followers, posts_count, engagement_rate_pct

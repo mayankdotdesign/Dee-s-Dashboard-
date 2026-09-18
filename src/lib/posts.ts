@@ -1,4 +1,5 @@
 import { sql } from "./db";
+import { proxiedImage } from "./utils";
 import type { MediaLabel, Post } from "./types";
 
 interface PostRow {
@@ -14,14 +15,6 @@ interface PostRow {
   permalink: string;
 }
 
-// Instagram's CDN blocks cross-origin embedding on some edge hosts
-// (Cross-Origin-Resource-Policy), so thumbnails are routed through our own
-// same-origin proxy instead of linking the CDN URL directly. See
-// src/app/api/img/route.ts.
-function proxiedThumbnail(url: string): string {
-  return `/api/img?url=${encodeURIComponent(url)}`;
-}
-
 function mapPost(r: PostRow): Post {
   return {
     code: r.code,
@@ -32,7 +25,7 @@ function mapPost(r: PostRow): Post {
     play_count: r.play_count,
     created_at: r.created_at,
     caption: r.caption ?? "",
-    thumbnail: proxiedThumbnail(r.thumbnail),
+    thumbnail: proxiedImage(r.thumbnail),
     permalink: r.permalink,
   };
 }

@@ -41,6 +41,11 @@ export async function GET(request: Request) {
       const user = profile.data.user;
       const followers: number = user.edge_followed_by.count;
       const postsCount: number | null = user.edge_owner_to_timeline_media?.count ?? null;
+      const profilePicUrl: string | null = user.profile_pic_url_hd ?? user.profile_pic_url ?? null;
+
+      await sql`
+        UPDATE creators SET profile_pic_url = ${profilePicUrl} WHERE handle = ${handle}
+      `;
 
       const postsRes = await scFetch(`/v2/instagram/user/posts?handle=${handle}`);
       const items = (postsRes.items ?? []).slice(0, 5);

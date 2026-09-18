@@ -18,6 +18,8 @@ export interface Creator {
   engagement_rate_pct: number | null;
   why_relevant: string;
   category: Category;
+  /** Proxied through /api/img — see proxiedImage() in lib/creators.ts. Null until a cron run has captured it. */
+  profile_pic_url: string | null;
 }
 
 export type MediaLabel = "reel" | "carousel" | "photo" | "video";

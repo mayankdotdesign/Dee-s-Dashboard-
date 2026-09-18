@@ -51,6 +51,7 @@ export default async function TrendingPage() {
               <CreatorAvatar
                 handle={creator.handle}
                 fullName={creator.full_name}
+                profilePicUrl={creator.profile_pic_url}
                 className="h-8 w-8 shrink-0"
               />
               <span className="font-medium group-hover:text-primary transition-colors">

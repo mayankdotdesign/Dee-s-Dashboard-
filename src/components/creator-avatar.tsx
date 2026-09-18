@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 
 function initials(name: string) {
@@ -10,8 +10,8 @@ function initials(name: string) {
     .join("");
 }
 
-// Deterministic hue from the handle so avatars stay visually distinct
-// without needing live (and short-lived) Instagram CDN image URLs.
+// Deterministic hue from the handle so the fallback stays visually distinct
+// per creator even before a real photo (or if one never loads).
 function hueFromHandle(handle: string) {
   let hash = 0;
   for (let i = 0; i < handle.length; i++) {
@@ -23,15 +23,21 @@ function hueFromHandle(handle: string) {
 export function CreatorAvatar({
   handle,
   fullName,
+  profilePicUrl,
   className,
 }: {
   handle: string;
   fullName: string;
+  /** Already proxied through /api/img — see lib/creators.ts. */
+  profilePicUrl?: string | null;
   className?: string;
 }) {
   const hue = hueFromHandle(handle);
   return (
     <Avatar className={cn("border border-border", className)}>
+      {profilePicUrl && (
+        <AvatarImage src={profilePicUrl} alt={`@${handle}`} />
+      )}
       <AvatarFallback
         style={{
           backgroundColor: `oklch(0.9 0.05 ${hue})`,

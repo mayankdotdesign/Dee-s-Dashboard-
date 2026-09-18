@@ -45,6 +45,7 @@ export default async function CreatorPage({
         <CreatorAvatar
           handle={creator.handle}
           fullName={creator.full_name}
+          profilePicUrl={creator.profile_pic_url}
           className="h-16 w-16"
         />
         <div className="flex-1">

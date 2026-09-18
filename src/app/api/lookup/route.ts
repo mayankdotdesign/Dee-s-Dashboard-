@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { proxiedImage } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -32,10 +33,13 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
 
+  const picUrl: string | null = user.profile_pic_url_hd ?? user.profile_pic_url ?? null;
+
   return NextResponse.json({
     handle: user.username ?? handle,
     full_name: user.full_name ?? user.username ?? handle,
     followers: user.edge_followed_by?.count ?? null,
     is_private: Boolean(user.is_private),
+    profile_pic_url: picUrl ? proxiedImage(picUrl) : null,
   });
 }

@@ -58,6 +58,7 @@ export function LeaderboardTable({ creators }: { creators: Creator[] }) {
                     <CreatorAvatar
                       handle={creator.handle}
                       fullName={creator.full_name}
+                      profilePicUrl={creator.profile_pic_url}
                       className="h-9 w-9"
                     />
                     <span className="flex flex-col">
@@ -119,6 +120,7 @@ function LeaderboardCards({ creators }: { creators: Creator[] }) {
           <CreatorAvatar
             handle={creator.handle}
             fullName={creator.full_name}
+            profilePicUrl={creator.profile_pic_url}
             className="h-10 w-10 shrink-0"
           />
           <div className="min-w-0 flex-1">
