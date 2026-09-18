@@ -192,3 +192,15 @@ After pushing the Phase 3 + Phase 5 commits, the live site kept behaving as if n
 Verified fully recovered against the live URL, not just locally: homepage renders real DB data, `/api/cron/refresh` returns `"ok"` for all 20 creators, `/api/lookup` returns live results, `/api/img` proxies a real thumbnail (200, correct JPEG bytes).
 
 **Lesson for next time**: this app never fails loudly on a broken deploy — Vercel just keeps serving the last good build with no obvious signal in the UI that new pushes stopped taking effect. Worth checking the Deployments tab's actual top entry (status + commit) after any push that touches `src/lib/db.ts`, the root layout, or environment variables, rather than assuming a successful `git push` means the live site updated.
+
+## 15. Open Graph image + ScrapeCreators credit optimization
+
+**Open Graph image**: `src/app/opengraph-image.tsx` renders the `/login` screen (sunflower, "Hey Deeksha", password field, Enter button) as a 1200x630 PNG via `next/og`'s `ImageResponse`, so sharing the dashboard link shows a branded preview instead of nothing. Colors are the dark-mode palette from `globals.css` converted to hex (Satori, the renderer behind `next/og`, doesn't support `oklch()`). Had to exempt `/opengraph-image` from the password-gate middleware — link-preview crawlers (WhatsApp, Slack, iMessage) fetch it with no session cookie, so without the exemption they'd get redirected to `/login` and the preview would show login-page HTML instead of the image.
+
+**Credit optimization**: a chunk of the ScrapeCreators account's credits went to repeated full-sweep test runs during this session's development (each full `/api/cron/refresh` run is 20 creators x 2 calls = 40 credits — re-running it 4-5 times while debugging the profile-picture backfill and the production outage adds up fast). Three fixes:
+
+- **`cache_max_age=1d`** added to the cron's profile call, and **`cache_max_age=7d`** to `/api/lookup`'s. ScrapeCreators caches server-side and charges **0 credits on a hit** — verified directly against the API (two back-to-back calls both returned `cached: true, credits_charged: 0`). The posts endpoint doesn't support this parameter, only profile does. 7 days is fine for a casual on-demand follower-count lookup; 1 day on the cron only guards against same-day re-runs, since a real monthly gap always exceeds it anyway.
+- **`/api/cron/refresh?handle=<handle>`** — refreshes one creator instead of sweeping all 20, for targeted testing (2 credits instead of 40).
+- **`/api/cron/refresh?dry_run=true`** — exercises auth + the DB query + response shape with zero ScrapeCreators calls, for testing the plumbing itself.
+
+Going forward, any manual testing of the cron route should use `dry_run` or a single `handle` rather than a full sweep, and repeated searches for the same on-demand handle are now free within a week.

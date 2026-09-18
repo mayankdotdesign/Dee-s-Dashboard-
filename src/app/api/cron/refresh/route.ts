@@ -25,19 +25,45 @@ async function scFetch(path: string) {
 // Monthly refresh (see vercel.json) — pulls current followers + the 5 most
 // recent posts per tracked creator. Capped at 5 (not the full history) to
 // control ScrapeCreators credit spend, per PLAN.md §8.
+//
+// Two testing aids that spend zero or minimal credits, since a full sweep
+// is 2 credits x 20 creators and re-running it during debugging adds up
+// fast (this is exactly how a chunk of the account's credits got burned
+// during development — see PLAN.md §15):
+//   ?dry_run=true    — exercises everything except the ScrapeCreators
+//                      calls themselves (auth, DB query, response shape).
+//   ?handle=<handle> — refreshes just that one creator instead of all 20.
 export async function GET(request: Request) {
   const auth = request.headers.get("authorization");
   if (process.env.CRON_SECRET && auth !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const creators = await sql`SELECT handle FROM creators`;
+  const { searchParams } = new URL(request.url);
+  const dryRun = searchParams.get("dry_run") === "true";
+  const onlyHandle = searchParams.get("handle");
+
+  const creators = onlyHandle
+    ? await sql`SELECT handle FROM creators WHERE handle = ${onlyHandle}`
+    : await sql`SELECT handle FROM creators`;
+
+  if (dryRun) {
+    return NextResponse.json({
+      dry_run: true,
+      would_refresh: creators.map((c) => c.handle),
+    });
+  }
 
   // Refresh every creator concurrently — sequential took ~2min locally,
   // which blows past Vercel's Hobby-plan function time limit.
   const outcomes = await Promise.allSettled(
     creators.map(async ({ handle }) => {
-      const profile = await scFetch(`/v1/instagram/profile?handle=${handle}`);
+      // cache_max_age costs 0 credits on a hit instead of 1 — this only
+      // protects against re-running the sweep again within the same day
+      // (e.g. while debugging), since a real monthly gap always exceeds it.
+      const profile = await scFetch(
+        `/v1/instagram/profile?handle=${handle}&cache_max_age=1d`,
+      );
       const user = profile.data.user;
       const followers: number = user.edge_followed_by.count;
       const postsCount: number | null = user.edge_owner_to_timeline_media?.count ?? null;

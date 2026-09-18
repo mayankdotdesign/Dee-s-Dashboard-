@@ -3,10 +3,11 @@ import { proxiedImage } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
-// On-demand @username lookup for the search box — always hits ScrapeCreators
-// live (no caching, no DB write), regardless of the tracked list's monthly
-// cadence. Gated by the same DASHBOARD_PASSWORD session as the rest of the
-// app (see src/proxy.ts), since each call spends a ScrapeCreators credit.
+// On-demand @username lookup for the search box — not stored in our DB,
+// but does use ScrapeCreators' own server-side cache (cache_max_age=7d):
+// a follower count doesn't need to be fresher than a week for a casual
+// lookup, and a cache hit costs 0 credits instead of 1. Gated by the same
+// DASHBOARD_PASSWORD session as the rest of the app (see src/proxy.ts).
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const handle = searchParams.get("handle")?.trim().replace(/^@/, "");
@@ -16,7 +17,7 @@ export async function GET(request: Request) {
   }
 
   const res = await fetch(
-    `https://api.scrapecreators.com/v1/instagram/profile?handle=${encodeURIComponent(handle)}&trim=true`,
+    `https://api.scrapecreators.com/v1/instagram/profile?handle=${encodeURIComponent(handle)}&trim=true&cache_max_age=7d`,
     { headers: { "x-api-key": process.env.SCRAPECREATORS_API_KEY! } },
   );
 
