@@ -32,7 +32,7 @@ export default async function CreatorPage({
   ]);
 
   return (
-    <div className="mx-auto w-full max-w-5xl flex-1 px-4 py-8">
+    <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8">
       <Link
         href="/"
         className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -121,6 +121,6 @@ export default async function CreatorPage({
         <h2 className="mb-3 font-heading text-lg font-semibold">Posts</h2>
         <CreatorPostsSection topAllTime={topPosts} recent={latestPosts} />
       </section>
-    </div>
+    </main>
   );
 }

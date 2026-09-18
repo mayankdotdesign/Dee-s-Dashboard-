@@ -93,7 +93,9 @@
   --tag-sarkari: var(--c-amber-500);
   --tag-sarkari-foreground: var(--n-ink-900);
   --tag-travel: var(--c-sky-500);
-  --tag-travel-foreground: var(--n-paper-50);
+  /* sky-500 is too light for paper-50 text to clear WCAG AA (measured
+     2.93:1) — dark ink text matches what dark mode already uses below. */
+  --tag-travel-foreground: var(--n-ink-900);
   --tag-books: var(--c-plum-500);
   --tag-books-foreground: var(--n-paper-50);
   --tag-fitness: var(--c-sage-500);

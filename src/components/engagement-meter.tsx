@@ -4,13 +4,19 @@ import { cn } from "@/lib/utils";
  * Inline meter: fill = single accent hue, track = lighter step of the same
  * ramp (via opacity, not a second hue) — per dataviz skill's Meter spec.
  * Magnitude only, not a categorical comparison, so one hue throughout.
+ *
+ * Scaled with sqrt, not linearly, against `max` — real engagement rates
+ * from live data span roughly 5%-370%, and a single small/viral account
+ * makes a linear scale either clip everything to full or crush the rest
+ * to slivers. sqrt keeps the ranking visually legible across that range.
  */
 export function EngagementMeter({
   valuePct,
-  max = 40,
+  max = 100,
   className,
 }: {
   valuePct: number | null;
+  /** The highest value in the set being compared — pass the dataset max for a meaningful relative scale. */
   max?: number;
   className?: string;
 }) {
@@ -23,7 +29,8 @@ export function EngagementMeter({
     );
   }
 
-  const pct = Math.max(0, Math.min(100, (valuePct / max) * 100));
+  const ratio = max > 0 ? Math.max(0, valuePct) / max : 0;
+  const pct = Math.max(0, Math.min(100, Math.sqrt(ratio) * 100));
 
   return (
     <div className={cn("flex items-center gap-2", className)}>

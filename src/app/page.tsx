@@ -63,7 +63,7 @@ export default async function Home({
   const nichesCovered = new Set(allCreators.map((c) => c.category)).size;
 
   return (
-    <div className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
+    <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
       <div className="mb-8 flex flex-col gap-2">
         <h1 className="font-heading text-3xl font-semibold tracking-tight">
           Hey Deeksha 👋
@@ -93,6 +93,6 @@ export default async function Home({
       <p className="mt-6 text-xs text-muted-foreground">
         Last updated {formatDate(lastUpdated)}
       </p>
-    </div>
+    </main>
   );
 }

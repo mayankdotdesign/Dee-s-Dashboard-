@@ -20,9 +20,11 @@ function formatFollowers(n: number) {
 }
 
 export function LeaderboardTable({ creators }: { creators: Creator[] }) {
+  const maxEngagement = Math.max(0, ...creators.map((c) => c.engagement_rate_pct ?? 0));
+
   return (
     <>
-      <LeaderboardCards creators={creators} />
+      <LeaderboardCards creators={creators} maxEngagement={maxEngagement} />
 
       <div className="hidden overflow-x-auto rounded-lg border border-border sm:block">
         <Table>
@@ -78,7 +80,10 @@ export function LeaderboardTable({ creators }: { creators: Creator[] }) {
                   {formatFollowers(creator.followers)}
                 </TableCell>
                 <TableCell>
-                  <EngagementMeter valuePct={creator.engagement_rate_pct} />
+                  <EngagementMeter
+                    valuePct={creator.engagement_rate_pct}
+                    max={maxEngagement}
+                  />
                 </TableCell>
               </TableRow>
             ))}
@@ -92,7 +97,13 @@ export function LeaderboardTable({ creators }: { creators: Creator[] }) {
 // Below `sm`, a 5-column table forces horizontal scrolling and hides the
 // Niche/Followers/Engagement columns off-screen — a stacked card per creator
 // keeps everything visible without scrolling sideways.
-function LeaderboardCards({ creators }: { creators: Creator[] }) {
+function LeaderboardCards({
+  creators,
+  maxEngagement,
+}: {
+  creators: Creator[];
+  maxEngagement: number;
+}) {
   return (
     <div className="flex flex-col gap-2 sm:hidden">
       <div className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2">
@@ -138,7 +149,10 @@ function LeaderboardCards({ creators }: { creators: Creator[] }) {
             <span className="text-sm font-medium tabular-nums">
               {formatFollowers(creator.followers)}
             </span>
-            <EngagementMeter valuePct={creator.engagement_rate_pct} />
+            <EngagementMeter
+              valuePct={creator.engagement_rate_pct}
+              max={maxEngagement}
+            />
           </div>
         </Link>
       ))}
