@@ -4,6 +4,7 @@ import { SiteHeader } from "@/components/site-header";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { getCreators } from "@/lib/creators";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -27,7 +28,9 @@ export const metadata: Metadata = {
   description: "Your personal creator-growth reference dashboard",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const creators = await getCreators();
+
   return (
     <html
       lang="en"
@@ -37,7 +40,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <TooltipProvider delay={200}>
-            <SiteHeader />
+            <SiteHeader creators={creators} />
             {children}
             <Toaster />
           </TooltipProvider>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   CommandDialog,
@@ -12,19 +12,79 @@ import {
 } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
 import { CreatorAvatar } from "@/components/creator-avatar";
-import { Search } from "lucide-react";
+import { Search, Loader2, ExternalLink } from "lucide-react";
 import type { Creator } from "@/lib/types";
+import { formatCount } from "@/lib/utils";
+
+interface LookupResult {
+  handle: string;
+  full_name: string;
+  followers: number | null;
+  is_private: boolean;
+}
 
 export function SearchCommand({ creators }: { creators: Creator[] }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [lookup, setLookup] = useState<LookupResult | null>(null);
+  const [lookupState, setLookupState] = useState<"idle" | "loading" | "not_found" | "error">("idle");
   const router = useRouter();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const cleaned = query.replace(/^@/, "").trim().toLowerCase();
   const matches = creators.filter((c) =>
     c.handle.toLowerCase().includes(cleaned),
   );
   const isNewLookup = cleaned.length > 1 && matches.length === 0;
+
+  // Cancel any in-flight debounce timer on unmount.
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
+
+  // Debounced live fetch, triggered from the input handler (not an effect
+  // reacting to state) — only tracked-list matches are free; anything not in
+  // the tracked list always hits ScrapeCreators live, per PLAN.md §6.
+  function handleQueryChange(value: string) {
+    setQuery(value);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    const nextCleaned = value.replace(/^@/, "").trim().toLowerCase();
+    const nextIsNewLookup =
+      nextCleaned.length > 1 &&
+      !creators.some((c) => c.handle.toLowerCase().includes(nextCleaned));
+
+    if (!nextIsNewLookup) {
+      setLookup(null);
+      setLookupState("idle");
+      return;
+    }
+
+    setLookupState("loading");
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/lookup?handle=${encodeURIComponent(nextCleaned)}`);
+        if (res.status === 404) {
+          setLookupState("not_found");
+          setLookup(null);
+          return;
+        }
+        if (!res.ok) {
+          setLookupState("error");
+          setLookup(null);
+          return;
+        }
+        const data = (await res.json()) as LookupResult;
+        setLookup(data);
+        setLookupState("idle");
+      } catch {
+        setLookupState("error");
+        setLookup(null);
+      }
+    }, 500);
+  }
 
   return (
     <>
@@ -42,17 +102,56 @@ export function SearchCommand({ creators }: { creators: Creator[] }) {
         <CommandInput
           placeholder="Type an @username…"
           value={query}
-          onValueChange={setQuery}
+          onValueChange={handleQueryChange}
         />
         <CommandList>
           {isNewLookup ? (
-            <CommandEmpty className="px-4 py-6 text-sm text-muted-foreground">
-              <span className="font-medium text-foreground">
-                @{cleaned}
-              </span>{" "}
-              isn&apos;t in your tracked list yet. Looking up any account
-              on demand is coming soon.
-            </CommandEmpty>
+            lookupState === "loading" ? (
+              <CommandEmpty className="flex items-center gap-2 px-4 py-6 text-sm text-muted-foreground">
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                Looking up @{cleaned} on Instagram…
+              </CommandEmpty>
+            ) : lookup ? (
+              <CommandGroup heading="Live lookup (not tracked)">
+                <CommandItem
+                  value={`live-${lookup.handle}`}
+                  onSelect={() => {
+                    window.open(
+                      `https://www.instagram.com/${lookup.handle}/`,
+                      "_blank",
+                      "noopener,noreferrer",
+                    );
+                  }}
+                  className="gap-2"
+                >
+                  <div className="flex flex-1 items-center justify-between gap-2 overflow-hidden">
+                    <div className="flex items-center gap-2 overflow-hidden">
+                      <CreatorAvatar
+                        handle={lookup.handle}
+                        fullName={lookup.full_name}
+                        className="h-6 w-6 shrink-0"
+                      />
+                      <span className="truncate">@{lookup.handle}</span>
+                      {lookup.followers != null && (
+                        <span className="shrink-0 text-xs text-muted-foreground">
+                          {formatCount(lookup.followers)} followers
+                        </span>
+                      )}
+                    </div>
+                    <ExternalLink className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                  </div>
+                </CommandItem>
+              </CommandGroup>
+            ) : lookupState === "not_found" ? (
+              <CommandEmpty className="px-4 py-6 text-sm text-muted-foreground">
+                No Instagram account found for{" "}
+                <span className="font-medium text-foreground">@{cleaned}</span>.
+              </CommandEmpty>
+            ) : (
+              <CommandEmpty className="px-4 py-6 text-sm text-muted-foreground">
+                Couldn&apos;t look that up right now — try again in a moment.
+              </CommandEmpty>
+            )
           ) : (
             <CommandEmpty>No tracked creators match.</CommandEmpty>
           )}

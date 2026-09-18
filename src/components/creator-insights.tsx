@@ -7,6 +7,7 @@ import {
   topHashtags,
   postingCadence,
   consistency,
+  followerGrowth,
   type ConsistencyLevel,
 } from "@/lib/insights";
 
@@ -90,12 +91,16 @@ function FormatMeter({
   );
 }
 
-export function CreatorInsights({ handle }: { handle: string }) {
-  const format = formatPerformance(handle);
-  const timing = bestPostingTime(handle);
-  const hashtags = topHashtags(handle);
-  const cadence = postingCadence(handle);
-  const stability = consistency(handle);
+export async function CreatorInsights({ handle }: { handle: string }) {
+  const [format, timing, hashtags, cadence, stability, growth] =
+    await Promise.all([
+      formatPerformance(handle),
+      bestPostingTime(handle),
+      topHashtags(handle),
+      postingCadence(handle),
+      consistency(handle),
+      followerGrowth(handle),
+    ]);
 
   const maxFormatEngagement = format
     ? Math.max(...format.map((f) => f.avgEngagement))
@@ -207,11 +212,31 @@ export function CreatorInsights({ handle }: { handle: string }) {
         />
       )}
 
-      <EmptyInsightCard
-        icon={TrendingUp}
-        title="Follower growth over time"
-        message="Coming soon — this will fill in once we've tracked a few weeks of history for this account."
-      />
+      {growth ? (
+        <InsightCard icon={TrendingUp} title="Follower growth over time">
+          <p
+            className={
+              growth.deltaPct >= 0
+                ? "text-xl font-semibold text-primary tabular-nums"
+                : "text-xl font-semibold text-destructive tabular-nums"
+            }
+          >
+            {growth.deltaPct >= 0 ? "+" : ""}
+            {growth.deltaPct.toFixed(1)}%
+          </p>
+          <p className="text-xs text-muted-foreground tabular-nums">
+            {formatCount(growth.firstFollowers)} → {formatCount(growth.latestFollowers)}{" "}
+            over {Math.max(1, Math.round(growth.days))} day
+            {Math.round(growth.days) === 1 ? "" : "s"}
+          </p>
+        </InsightCard>
+      ) : (
+        <EmptyInsightCard
+          icon={TrendingUp}
+          title="Follower growth over time"
+          message="Coming soon — this will fill in once we've tracked a few weeks of history for this account."
+        />
+      )}
     </div>
   );
 }

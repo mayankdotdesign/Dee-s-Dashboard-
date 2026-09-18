@@ -5,15 +5,14 @@ import { usePathname } from "next/navigation";
 import { SearchCommand } from "@/components/search-command";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
-import { getCreators } from "@/lib/creators";
+import type { Creator } from "@/lib/types";
 
 const NAV_LINKS = [
   { href: "/", label: "Leaderboard" },
   { href: "/trending", label: "Trending" },
 ];
 
-export function SiteHeader() {
-  const creators = getCreators();
+export function SiteHeader({ creators }: { creators: Creator[] }) {
   const pathname = usePathname();
 
   // The login screen shouldn't show app navigation before she's in.

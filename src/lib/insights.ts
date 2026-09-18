@@ -1,24 +1,38 @@
-import postsFull from "../../data/creator-posts-full.json";
+import { sql } from "./db";
 import type { MediaLabel } from "./types";
 
 interface FullPost {
-  media_type: number;
   media_label: MediaLabel;
   like_count: number;
   comment_count: number;
-  play_count: number | null;
   created_at: string;
   caption: string;
 }
 
-const data = postsFull as Record<string, FullPost[]>;
+interface PostRow {
+  media_label: string;
+  like_count: number | null;
+  comment_count: number | null;
+  created_at: string;
+  caption: string | null;
+}
+
+async function getPosts(handle: string): Promise<FullPost[]> {
+  const rows = (await sql`
+    SELECT media_label, like_count, comment_count, created_at, caption
+    FROM posts WHERE handle = ${handle}
+  `) as PostRow[];
+  return rows.map((r) => ({
+    media_label: r.media_label as MediaLabel,
+    like_count: r.like_count ?? 0,
+    comment_count: r.comment_count ?? 0,
+    created_at: r.created_at,
+    caption: r.caption ?? "",
+  }));
+}
 
 function engagement(p: FullPost) {
   return p.like_count + p.comment_count;
-}
-
-function getPosts(handle: string): FullPost[] {
-  return data[handle] ?? [];
 }
 
 /** IST-adjusted day-of-week / hour, independent of server/client timezone. */
@@ -46,8 +60,10 @@ export interface FormatBreakdown {
   isBest: boolean;
 }
 
-export function formatPerformance(handle: string): FormatBreakdown[] | null {
-  const posts = getPosts(handle);
+export async function formatPerformance(
+  handle: string,
+): Promise<FormatBreakdown[] | null> {
+  const posts = await getPosts(handle);
   if (posts.length === 0) return null;
 
   const groups = new Map<MediaLabel, FullPost[]>();
@@ -84,8 +100,10 @@ function timeBucket(hour: number): string {
   return "late nights";
 }
 
-export function bestPostingTime(handle: string): BestPostingTime | null {
-  const posts = getPosts(handle);
+export async function bestPostingTime(
+  handle: string,
+): Promise<BestPostingTime | null> {
+  const posts = await getPosts(handle);
   if (posts.length < 4) return null; // too few posts for a meaningful pattern
 
   const byDay = new Map<number, { total: number; count: number }>();
@@ -132,8 +150,11 @@ export interface HashtagStat {
   avgEngagement: number;
 }
 
-export function topHashtags(handle: string, limit = 5): HashtagStat[] {
-  const posts = getPosts(handle);
+export async function topHashtags(
+  handle: string,
+  limit = 5,
+): Promise<HashtagStat[]> {
+  const posts = await getPosts(handle);
   const byTag = new Map<string, { total: number; count: number }>();
 
   for (const p of posts) {
@@ -166,8 +187,10 @@ export interface PostingCadence {
   postsPerWeek: number;
 }
 
-export function postingCadence(handle: string): PostingCadence | null {
-  const posts = getPosts(handle);
+export async function postingCadence(
+  handle: string,
+): Promise<PostingCadence | null> {
+  const posts = await getPosts(handle);
   if (posts.length < 3) return null;
 
   const sorted = [...posts].sort(
@@ -204,8 +227,10 @@ export interface ConsistencyStat {
   ratio: number;
 }
 
-export function consistency(handle: string): ConsistencyStat | null {
-  const posts = getPosts(handle);
+export async function consistency(
+  handle: string,
+): Promise<ConsistencyStat | null> {
+  const posts = await getPosts(handle);
   if (posts.length < 4) return null;
 
   const values = posts.map(engagement).sort((a, b) => a - b);
@@ -221,4 +246,42 @@ export function consistency(handle: string): ConsistencyStat | null {
     ratio < 2 ? "steady" : ratio < 5 ? "occasional-breakout" : "breakout-driven";
 
   return { level, medianEngagement: median, maxEngagement: max, ratio };
+}
+
+// ---------- 6. Follower growth ----------
+
+export interface FollowerGrowth {
+  firstFollowers: number;
+  latestFollowers: number;
+  deltaPct: number;
+  days: number;
+}
+
+export async function followerGrowth(
+  handle: string,
+): Promise<FollowerGrowth | null> {
+  const rows = (await sql`
+    SELECT captured_at, followers FROM creator_snapshots
+    WHERE handle = ${handle}
+    ORDER BY captured_at ASC
+  `) as { captured_at: string; followers: number }[];
+  if (rows.length < 2) return null;
+
+  const first = rows[0];
+  const latest = rows[rows.length - 1];
+  const days =
+    (new Date(latest.captured_at).getTime() -
+      new Date(first.captured_at).getTime()) /
+    (1000 * 60 * 60 * 24);
+  const deltaPct =
+    first.followers > 0
+      ? ((latest.followers - first.followers) / first.followers) * 100
+      : 0;
+
+  return {
+    firstFollowers: first.followers,
+    latestFollowers: latest.followers,
+    deltaPct,
+    days,
+  };
 }

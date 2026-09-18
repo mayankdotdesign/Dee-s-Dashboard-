@@ -6,14 +6,22 @@ import { getCreators } from "@/lib/creators";
 import { topAllTimePosts } from "@/lib/posts";
 import type { Creator, Post } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 interface TrendingEntry {
   creator: Creator;
   post: Post;
 }
 
-export default function TrendingPage() {
-  const withPosts: TrendingEntry[] = getCreators()
-    .map((creator) => ({ creator, post: topAllTimePosts(creator.handle)[0] }))
+export default async function TrendingPage() {
+  const creators = await getCreators();
+  const withTopPost = await Promise.all(
+    creators.map(async (creator) => ({
+      creator,
+      post: (await topAllTimePosts(creator.handle, 1))[0],
+    })),
+  );
+  const withPosts: TrendingEntry[] = withTopPost
     .filter((entry): entry is TrendingEntry => entry.post != null)
     .sort((a, b) => b.post.like_count - a.post.like_count);
 
@@ -29,8 +37,7 @@ export default function TrendingPage() {
           sarkari-job/office-life, travel, books, or fitness niches.
         </p>
         <div className="mt-1 w-fit rounded-md border border-dashed border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-          This list updates whenever we refresh the tracked creators —
-          automatic updates are coming soon.
+          Refreshed automatically on the 1st of every month.
         </div>
       </div>
 

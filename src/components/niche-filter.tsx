@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { CATEGORY_LABEL } from "@/lib/creators";
+import { CATEGORY_LABEL } from "@/lib/category";
 import type { Category } from "@/lib/types";
 
 const ALL_CATEGORIES: Category[] = ["sarkari", "travel", "books", "fitness"];

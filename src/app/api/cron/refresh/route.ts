@@ -52,6 +52,9 @@ export async function GET(request: Request) {
           INSERT INTO posts (code, handle, media_type, media_label, like_count, comment_count, play_count, created_at, caption, thumbnail, permalink)
           VALUES (${p.code}, ${handle}, ${String(p.media_type)}, ${mediaLabel(p.product_type, p.media_type)}, ${p.like_count}, ${p.comment_count}, ${p.play_count ?? null}, ${p.created_at}, ${p.caption?.text ?? null}, ${p.display_uri ?? null}, ${p.url ?? null})
           ON CONFLICT (handle, created_at) DO UPDATE SET
+            code = EXCLUDED.code,
+            media_type = EXCLUDED.media_type,
+            media_label = EXCLUDED.media_label,
             like_count = EXCLUDED.like_count,
             comment_count = EXCLUDED.comment_count,
             play_count = EXCLUDED.play_count,

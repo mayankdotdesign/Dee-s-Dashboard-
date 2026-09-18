@@ -21,7 +21,9 @@ function formatDate(iso: string) {
 const HASHTAG_RE = /#[\p{L}\p{N}_]+/gu;
 
 function splitCaption(caption: string) {
-  const hashtags = caption.match(HASHTAG_RE) ?? [];
+  // Real captions sometimes repeat a hashtag — dedupe so it isn't rendered
+  // (and keyed) twice.
+  const hashtags = [...new Set(caption.match(HASHTAG_RE) ?? [])];
   const text = caption.replace(HASHTAG_RE, "").replace(/\s{2,}/g, " ").trim();
   return { text, hashtags };
 }

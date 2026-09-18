@@ -1,7 +1,9 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { LeaderboardTabs } from "@/components/leaderboard-tabs";
-import { getCreators, sortByEngagement, SEED_META } from "@/lib/creators";
+import { getCreators, sortByEngagement, getLastUpdated } from "@/lib/creators";
 import type { Category } from "@/lib/types";
+
+export const dynamic = "force-dynamic";
 
 function StatTile({ label, value }: { label: string; value: string }) {
   return (
@@ -38,7 +40,11 @@ export default async function Home({
   searchParams: Promise<{ niche?: string }>;
 }) {
   const { niche } = await searchParams;
-  const allCreators = sortByEngagement(getCreators());
+  const [creatorsData, lastUpdated] = await Promise.all([
+    getCreators(),
+    getLastUpdated(),
+  ]);
+  const allCreators = sortByEngagement(creatorsData);
 
   const activeNiches = (niche?.split(",") ?? []).filter((v): v is Category =>
     ALL_CATEGORIES.includes(v as Category),
@@ -85,7 +91,7 @@ export default async function Home({
       <LeaderboardTabs creators={creators} />
 
       <p className="mt-6 text-xs text-muted-foreground">
-        Last updated {formatDate(SEED_META.generated_at)}
+        Last updated {formatDate(lastUpdated)}
       </p>
     </div>
   );

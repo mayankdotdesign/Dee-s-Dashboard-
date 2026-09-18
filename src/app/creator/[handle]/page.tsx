@@ -7,12 +7,11 @@ import { CategoryBadge } from "@/components/category-badge";
 import { EngagementMeter } from "@/components/engagement-meter";
 import { CreatorPostsSection } from "@/components/creator-posts-section";
 import { CreatorInsights } from "@/components/creator-insights";
-import { getCreatorByHandle, getCreators, TIER_LABEL } from "@/lib/creators";
+import { getCreatorByHandle } from "@/lib/creators";
+import { TIER_LABEL } from "@/lib/category";
 import { topAllTimePosts, recentPosts } from "@/lib/posts";
 
-export function generateStaticParams() {
-  return getCreators().map((c) => ({ handle: c.handle }));
-}
+export const dynamic = "force-dynamic";
 
 function formatFollowers(n: number) {
   return n.toLocaleString("en-IN");
@@ -24,11 +23,13 @@ export default async function CreatorPage({
   params: Promise<{ handle: string }>;
 }) {
   const { handle } = await params;
-  const creator = getCreatorByHandle(handle);
+  const creator = await getCreatorByHandle(handle);
   if (!creator) notFound();
 
-  const topPosts = topAllTimePosts(creator.handle);
-  const latestPosts = recentPosts(creator.handle);
+  const [topPosts, latestPosts] = await Promise.all([
+    topAllTimePosts(creator.handle),
+    recentPosts(creator.handle),
+  ]);
 
   return (
     <div className="mx-auto w-full max-w-5xl flex-1 px-4 py-8">
