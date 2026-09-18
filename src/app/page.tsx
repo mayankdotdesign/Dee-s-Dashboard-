@@ -1,8 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { LeaderboardTabs } from "@/components/leaderboard-tabs";
 import { getCreators, sortByEngagement, getLastUpdated } from "@/lib/creators";
-import { getCreditBalance, LOW_BALANCE_THRESHOLD } from "@/lib/scrapecreators";
-import { cn } from "@/lib/utils";
 import type { Category } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -42,10 +40,9 @@ export default async function Home({
   searchParams: Promise<{ niche?: string }>;
 }) {
   const { niche } = await searchParams;
-  const [creatorsData, lastUpdated, creditsRemaining] = await Promise.all([
+  const [creatorsData, lastUpdated] = await Promise.all([
     getCreators(),
     getLastUpdated(),
-    getCreditBalance(),
   ]);
   const allCreators = sortByEngagement(creatorsData);
 
@@ -93,18 +90,8 @@ export default async function Home({
 
       <LeaderboardTabs creators={creators} />
 
-      <p className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-        <span>Last updated {formatDate(lastUpdated)}</span>
-        {creditsRemaining != null && (
-          <span
-            className={cn(
-              "before:mr-3 before:content-['·']",
-              creditsRemaining < LOW_BALANCE_THRESHOLD && "font-medium text-destructive",
-            )}
-          >
-            {creditsRemaining.toLocaleString("en-IN")} scraping credits left
-          </span>
-        )}
+      <p className="mt-6 text-xs text-muted-foreground">
+        Last updated {formatDate(lastUpdated)}
       </p>
     </main>
   );
