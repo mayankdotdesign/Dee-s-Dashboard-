@@ -29,7 +29,12 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const creators = await getCreators();
+  // Next statically prerenders /_not-found at build time, which still
+  // renders this layout — never let a DB hiccup (or a build environment
+  // without DATABASE_URL yet) take down the whole build or every page.
+  // Search just degrades to an empty tracked-creators list until the next
+  // successful request.
+  const creators = await getCreators().catch(() => []);
 
   return (
     <html
