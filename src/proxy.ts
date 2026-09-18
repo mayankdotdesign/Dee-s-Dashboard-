@@ -20,6 +20,12 @@ export async function proxy(request: NextRequest) {
   if (pathname.startsWith("/api/cron/")) {
     return NextResponse.next();
   }
+  // Social media / messaging-app link-preview crawlers fetch this with no
+  // cookie either — it's a static branded image, not app data, so there's
+  // nothing to protect by gating it.
+  if (pathname.startsWith("/opengraph-image") || pathname.startsWith("/twitter-image")) {
+    return NextResponse.next();
+  }
 
   const cookie = request.cookies.get(SESSION_COOKIE)?.value;
   const expected = await hashPassword(password);
