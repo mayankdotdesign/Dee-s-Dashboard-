@@ -204,3 +204,15 @@ Verified fully recovered against the live URL, not just locally: homepage render
 - **`/api/cron/refresh?dry_run=true`** — exercises auth + the DB query + response shape with zero ScrapeCreators calls, for testing the plumbing itself.
 
 Going forward, any manual testing of the cron route should use `dry_run` or a single `handle` rather than a full sweep, and repeated searches for the same on-demand handle are now free within a week.
+
+## 16. Credit cap + low-balance safety net
+
+With §15's caching in place, projected the actual runway: the cron is a fixed ~40 credits/month, and even a heavy on-demand-search month (~100 searches) lands around ~165 credits/month — against a 6,814-credit balance that's **3.5+ years** even in the heavy case, more like 6-10 years at light/moderate use. **Steady organic usage was never the real risk** — the credits actually burned so far came entirely from repeated full-sweep test runs during development (§15), a burst pattern, not a drip.
+
+So the safety net targets bursts/bugs specifically, not normal search volume:
+
+- **`lookup_usage` table** (`usage_date` PK, `count`) — tracks `/api/lookup` calls per day.
+- **Daily hard cap of 30 lookups/day** (`DAILY_LOOKUP_CAP` in `src/lib/scrapecreators.ts`) — a ceiling against any bug or runaway loop, not a realistic organic limit.
+- **Low-balance kill switch**: `/api/lookup` checks the live ScrapeCreators balance (confirmed the balance check itself is free — two consecutive checks both returned the same count) and pauses search below **500 credits** (`LOW_BALANCE_THRESHOLD`), leaving the monthly cron (~40 credits) plenty of room to keep running afterward. Both gates tested directly: forced the daily counter to 30 → got `429 daily_cap_reached`; forced the threshold above the real balance → got `503 low_balance`. Both revert to normal once the condition clears.
+- **Balance surfaced on the dashboard itself** — the homepage footer now reads "Last updated `<date>` · `N` scraping credits left" (turns red below the same 500 threshold). There's no email/SMS infra in this app, so ambient visibility on every visit is the practical "alert" rather than a push notification.
+- `/api/cron/refresh`'s JSON response also now includes `scrapecreators_credits_remaining` for anyone checking it directly.

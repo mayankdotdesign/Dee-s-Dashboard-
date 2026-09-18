@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
+import { SC_BASE, getCreditBalance } from "@/lib/scrapecreators";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
-
-const SC_BASE = "https://api.scrapecreators.com";
 
 function mediaLabel(productType: string, mediaType: number): string {
   if (productType === "carousel_container") return "carousel";
@@ -119,5 +118,11 @@ export async function GET(request: Request) {
           : "unknown error";
   });
 
-  return NextResponse.json({ refreshed_at: new Date().toISOString(), results });
+  const creditsRemaining = await getCreditBalance();
+
+  return NextResponse.json({
+    refreshed_at: new Date().toISOString(),
+    results,
+    scrapecreators_credits_remaining: creditsRemaining,
+  });
 }
