@@ -77,7 +77,7 @@ That's the only new thing to set up. Everything else is covered.
 - [x] **Phase 4 — Dashboard UI** (built alongside Phase 2, running on static seed data): leaderboard with niche filter + week/month (disabled, tooltipped)/all-time tabs, creator detail pages with real Top-performing/Recent post grids (thumbnails, likes/comments/plays, click-through) and 5 "Patterns worth knowing" insight widgets, search, trending feed. See §8-§10 for the review-round fixes and decisions layered on top of the original build.
 - [x] **Phase 6 — Deploy**: live at [deedash.vercel.app](https://deedash.vercel.app), password-gated with a custom login screen. See §11.
 - [x] **Phase 3 — Ingestion**: Neon connection, DB schema, cron job + serverless functions for scheduled + on-demand ScrapeCreators fetches, wire pages to real data instead of the static JSON. See §12.
-- [ ] **Phase 5 — Polish pass**: design-better + motion + accessibility passes (mobile table currently horizontal-scrolls — candidate for a card layout on small screens)
+- [~] **Phase 5 — Polish pass**: mobile leaderboard converted from a horizontal-scrolling table to a stacked card layout below `sm` (see §13) — the specific candidate called out here originally. Broader design-better/motion/accessibility passes are still open-ended and not yet done.
 
 ## 7. Open questions (non-blocking, revisit later)
 
@@ -170,3 +170,13 @@ Domain is live at `deedash.vercel.app`; the old `dee-s-dashboard.vercel.app` is 
 - Real captions sometimes repeat the same hashtag twice — `post-card.tsx`'s hashtag chips used the raw regex match (no dedupe) as React keys, another duplicate-key case. Fixed with a `Set`.
 
 Verified end-to-end in the browser: leaderboard renders real follower/engagement numbers, creator detail pages show real insights and post thumbnails (via the image proxy), the on-demand search returns live results for untracked accounts (tested `@narendramodi` → 106.8M followers, and a nonexistent handle → clean "not found" state) and external accounts open their real Instagram profile in a new tab.
+
+## 13. Phase 5 (partial) — mobile leaderboard card layout
+
+Below the `sm` breakpoint, `LeaderboardTable` now renders `LeaderboardCards` instead of a horizontally-scrolling 5-column table — one stacked card per creator (rank, avatar, handle, name, niche badge, followers, engagement meter), plus a standalone "Filter · Niche" row above the list so the niche dropdown stays reachable without the table header. Table markup is unchanged above `sm` (`hidden sm:block` / `sm:hidden` toggle, no duplicated logic beyond the two render paths).
+
+Also fixed while testing on a 375px viewport: the creator detail page's 3-column Followers/Tier/Engagement stat row squeezed "Mid-size"/"High performer" onto two cramped lines. Changed to `grid-cols-2 sm:grid-cols-3` with Engagement spanning both columns on mobile (`col-span-2 sm:col-span-1`), and the Tier value drops to `text-lg` below `sm`.
+
+Verified visually at 375×812 (leaderboard cards, niche filter dropdown, creator detail stat row, post cards) and confirmed the desktop table is untouched.
+
+Not done (remaining Phase 5 scope, open-ended): a broader design-better pass, motion, and a dedicated accessibility audit (contrast, focus order, ARIA) beyond what shipped incidentally with earlier rounds.
