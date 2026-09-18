@@ -180,3 +180,15 @@ Also fixed while testing on a 375px viewport: the creator detail page's 3-column
 Verified visually at 375×812 (leaderboard cards, niche filter dropdown, creator detail stat row, post cards) and confirmed the desktop table is untouched.
 
 Not done (remaining Phase 5 scope, open-ended): a broader design-better pass, motion, and a dedicated accessibility audit (contrast, focus order, ARIA) beyond what shipped incidentally with earlier rounds.
+
+## 14. Production outage — every deploy since Phase 3 was silently failing
+
+After pushing the Phase 3 + Phase 5 commits, the live site kept behaving as if none of it had landed. Root cause, in order of discovery:
+
+1. **Every build from `5f8aa3b` onward was actually failing**, not stalling — Vercel kept serving the pre-Phase-3 build (`9f15a39`) without surfacing this anywhere obvious. `src/lib/db.ts` created the Neon client eagerly at module scope, and Next statically prerenders `/_not-found` at build time, which evaluates the root layout's module graph (imports `db.ts`) before `DATABASE_URL` is reliably available in that build phase — crashing the whole build. Fixed by making the client lazy (only calls `neon()` on first actual query) **and** making the root layout's creators fetch resilient (`.catch(() => [])`), since a 404 page should never depend on a live DB connection either way. Verified by building with `DATABASE_URL` completely absent — succeeds now.
+2. Once builds succeeded again, the site 500'd on every DB-backed route. Vercel's request trace showed **zero outgoing requests** from the failing function — meaning the code threw before ever attempting a network call, which only happens if `DATABASE_URL` reads as empty. Root cause: the earlier naming collision during the Neon integration install (see §12) meant `DATABASE_URL` was left blank in Vercel the whole time; the real connection string only ever existed under the `NEON_*`-prefixed vars and in local `.env.local` (fetched manually via the Neon MCP). Fixed by overwriting `DATABASE_URL` in Vercel with the real value directly.
+3. Even after saving the corrected value, the *very next* request still failed the same way — resolved a minute or two later on its own, most likely function-container propagation delay rather than a real second bug (subsequent requests all succeeded cleanly).
+
+Verified fully recovered against the live URL, not just locally: homepage renders real DB data, `/api/cron/refresh` returns `"ok"` for all 20 creators, `/api/lookup` returns live results, `/api/img` proxies a real thumbnail (200, correct JPEG bytes).
+
+**Lesson for next time**: this app never fails loudly on a broken deploy — Vercel just keeps serving the last good build with no obvious signal in the UI that new pushes stopped taking effect. Worth checking the Deployments tab's actual top entry (status + commit) after any push that touches `src/lib/db.ts`, the root layout, or environment variables, rather than assuming a successful `git push` means the live site updated.
